@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 
+// Colores tal cual (sin gestión de color) para que el magenta salga igual que en el CSS.
+THREE.ColorManagement.enabled = false;
+
 // Fondo 3D del hero: mechones de "seda" (pelo largo y lacio) que ondean.
 // - Escritorio: el mechón se acerca al cursor.
 // - Teléfono: se mueve al inclinar o sacudir el teléfono (giroscopio/acelerómetro),
@@ -106,6 +109,7 @@ export default function SilkBackground({ className }: Props) {
       return; // sin WebGL: queda el degradado de fondo del hero
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
     renderer.setClearColor(0x000000, 0);
 
     const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 50);
@@ -210,9 +214,10 @@ export default function SilkBackground({ className }: Props) {
       if (tilt.active) {
         // Inclinar el teléfono "deja caer" la seda hacia ese lado.
         const halfW = halfH * camera.aspect;
-        pointer.tx = tilt.x * halfW * 0.8; pointer.ty = -tilt.y * halfH * 0.7; pointer.ts = 0.9;
-        mesh.rotation.z = -tilt.x * 0.18;
-        camera.position.x = tilt.x * 0.35; camera.position.y = -tilt.y * 0.25;
+        pointer.tx = tilt.x * halfW * 0.9; pointer.ty = -tilt.y * halfH * 0.8; pointer.ts = 1.2;
+        mesh.rotation.z = -tilt.x * 0.3;
+        mesh.position.x = tilt.x * 0.35; mesh.position.y = -tilt.y * 0.3;
+        camera.position.x = tilt.x * 0.5; camera.position.y = -tilt.y * 0.35;
         camera.lookAt(0, 0, 0);
       }
       pointer.x += (pointer.tx - pointer.x) * 0.08; pointer.y += (pointer.ty - pointer.y) * 0.08;
