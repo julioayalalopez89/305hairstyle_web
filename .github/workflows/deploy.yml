@@ -72,8 +72,9 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
           echo "Contents of the FTP root (target dir: ${{ vars.FTP_SERVER_DIR || './' }}):"
-          curl --verbose --insecure --show-error --ssl-reqd --list-only --max-time 30 \
-            --user "${FTP_USERNAME}:${FTP_PASSWORD}" "ftp://${FTP_SERVER}/" 2>&1 | grep -v -i -E "PASS|USER" 
+          # --insecure: Hostinger presenta un certificado *.hstgr.io y nos conectamos por IP.
+          curl --silent --insecure --show-error --ssl-reqd --list-only --max-time 30 \
+            --user "${FTP_USERNAME}:${FTP_PASSWORD}" "ftp://${FTP_SERVER}/"
 
       - name: Upload to Hostinger (FTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
