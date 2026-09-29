@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Menu, X, Star, Phone, MapPin, Clock, ChevronRight, Instagram, Facebook, MessageCircle } from "lucide-react";
-import logoImg from "@/imports/Screenshot_2026-06-23_211525.png";
+import logoLinesImg from "@/imports/logo-lines.png";
 
 // three.js se carga aparte para no frenar la primera pintura de la página.
 const SilkBackground = lazy(() => import("./components/hero/SilkBackground"));
@@ -82,23 +82,27 @@ const TESTIMONIALS = [
 ];
 
 function SalonLogo({ size = 40, className = "" }: { size?: number; className?: string }) {
-  // El logo es línea oscura sobre blanco. Se invierte (líneas blancas sobre negro),
-  // se multiplica por el color de acento y el contenedor se funde con "screen":
-  // el negro desaparece y las líneas quedan del color elegido en la paleta.
+  // logo-lines.png es el mismo logo con el fondo blanco transparente. Se usa como
+  // máscara y se pinta con el color de acento, así cambia con la paleta de pelo.
   return (
     <span
-      className={`inline-block self-center ${className}`}
-      style={{ width: size, background: "var(--brand)", isolation: "isolate", mixBlendMode: "screen", lineHeight: 0 }}
-    >
-      <img
-        src={logoImg}
-        alt="305 Hair Style logo"
-        width={size}
-        height={size}
-        className="block w-full h-auto"
-        style={{ filter: "invert(1) grayscale(1) contrast(2) brightness(1.3)", mixBlendMode: "multiply" }}
-      />
-    </span>
+      role="img"
+      aria-label="305 Hair Style logo"
+      className={`inline-block shrink-0 ${className}`}
+      style={{
+        width: size,
+        height: Math.round(size * 0.645),
+        backgroundColor: "var(--brand)",
+        WebkitMaskImage: `url(${logoLinesImg})`,
+        maskImage: `url(${logoLinesImg})`,
+        WebkitMaskSize: "contain",
+        maskSize: "contain",
+        WebkitMaskRepeat: "no-repeat",
+        maskRepeat: "no-repeat",
+        WebkitMaskPosition: "center",
+        maskPosition: "center",
+      }}
+    />
   );
 }
 
