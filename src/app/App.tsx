@@ -285,7 +285,7 @@ export default function App() {
                 <div className="flex items-center gap-1.5 mb-0.5">
                   <StarRating count={5} />
                 </div>
-                <div className="text-xs font-bold text-foreground">+200 clientas felices</div>
+                <div className="text-xs font-bold text-foreground">Cinco estrellas y contando</div>
               </div>
               <div className="absolute -top-3 -left-3 bg-[#AB0268] text-white rounded-2xl px-3 py-2 shadow-lg">
                 <div className="text-[10px] font-bold uppercase tracking-wider">Miami</div>
@@ -306,10 +306,10 @@ export default function App() {
       <section className="bg-[#AB0268] text-white py-10">
         <div className="max-w-5xl mx-auto px-5 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {[
-            { value: "+200", label: "Clientas satisfechas" },
-            { value: "6+", label: "Años de experiencia" },
+            { value: "5★", label: "Ni una estrella menos" },
+            { value: "3+", label: "Años de experiencia" },
             { value: "15+", label: "Servicios disponibles" },
-            { value: "5★", label: "Calificación promedio" },
+            { value: "Ana", label: "Te atiende la fundadora" },
           ].map((stat) => (
             <div key={stat.label}>
               <div className="text-3xl font-bold mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>
