@@ -1,0 +1,88 @@
+# Build del sitio y deploy a Hostinger por FTP.
+#
+# - Pull requests: compila y hace un "dry run" contra el FTP (prueba la conexión
+#   y muestra qué subiría) sin cambiar nada en el servidor.
+# - Push a main: despliega SOLO si la variable del repo AUTO_DEPLOY vale "true"
+#   (Settings → Secrets and variables → Actions → Variables).
+# - Manual (Actions → Deploy to Hostinger → Run workflow): despliega siempre.
+#
+# Secrets necesarios: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD. La cuenta FTP
+# Carpeta destino: variable FTP_SERVER_DIR (por defecto ./). Con la cuenta FTP
+# principal de Hostinger es ./public_html/; con una cuenta creada con directorio
+# public_html es ./
+
+name: Deploy to Hostinger
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-hostinger-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Build
+        run: npm run build
+
+      - name: Write version.txt
+        run: |
+          {
+            echo "commit: ${GITHUB_SHA}"
+            echo "built: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "run: ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+          } > dist/version.txt
+          cat dist/version.txt
+
+      - name: Decide mode
+        id: mode
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "dry_run=false" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "push" ] && [ "${{ vars.AUTO_DEPLOY }}" = "true" ]; then
+            echo "dry_run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "dry_run=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::Dry run only (no files changed on the server). Set repo variable AUTO_DEPLOY=true to deploy on every push to main."
+          fi
+
+      - name: Check FTP login and list the server folder
+        if: steps.mode.outputs.dry_run == 'true'
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          echo "Contents of the FTP root (target dir: ${{ vars.FTP_SERVER_DIR || './' }}):"
+          # --insecure: Hostinger presenta un certificado *.hstgr.io y nos conectamos por IP.
+          curl --silent --insecure --show-error --ssl-reqd --list-only --max-time 30 \
+            --user "${FTP_USERNAME}:${FTP_PASSWORD}" "ftp://${FTP_SERVER}/"
+
+      - name: Upload to Hostinger (FTP)
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./dist/
+          server-dir: ${{ vars.FTP_SERVER_DIR || './' }}
+          dry-run: ${{ steps.mode.outputs.dry_run }}
