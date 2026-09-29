@@ -1,7 +1,8 @@
 # Build del sitio y deploy a Hostinger por FTP.
 #
-# - Pull requests: compila y hace un "dry run" contra el FTP (prueba la conexión
-#   y muestra qué subiría) sin cambiar nada en el servidor.
+# - Pull requests: publica una VISTA PREVIA en https://305hairstyle.com/preview/
+#   (carpeta public_html/preview, no indexada). El sitio real no cambia.
+#   Si hay varios PRs abiertos, la vista previa muestra el último que se actualizó.
 # - Push a main: despliega SOLO si la variable del repo AUTO_DEPLOY vale "true"
 #   (Settings → Secrets and variables → Actions → Variables).
 # - Manual (Actions → Deploy to Hostinger → Run workflow): despliega siempre.
@@ -41,7 +42,12 @@ jobs:
         run: npm ci --no-audit --no-fund
 
       - name: Build
-        run: npm run build
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            npm run build -- --base=/preview/
+          else
+            npm run build
+          fi
 
       - name: Write version.txt
         run: |
@@ -55,7 +61,11 @@ jobs:
       - name: Decide mode
         id: mode
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "dry_run=false" >> "$GITHUB_OUTPUT"
+            echo "server_dir=./preview/" >> "$GITHUB_OUTPUT"
+            echo "::notice::Preview: https://305hairstyle.com/preview/"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "dry_run=false" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event_name }}" = "push" ] && [ "${{ vars.AUTO_DEPLOY }}" = "true" ]; then
             echo "dry_run=false" >> "$GITHUB_OUTPUT"
@@ -76,6 +86,10 @@ jobs:
           curl --silent --insecure --show-error --ssl-reqd --list-only --max-time 30 \
             --user "${FTP_USERNAME}:${FTP_PASSWORD}" "ftp://${FTP_SERVER}/"
 
+      - name: Preview link in the PR
+        if: github.event_name == 'pull_request'
+        run: echo "### 👀 Preview: https://305hairstyle.com/preview/" >> "$GITHUB_STEP_SUMMARY"
+
       - name: Upload to Hostinger (FTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -84,5 +98,5 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
           local-dir: ./dist/
-          server-dir: ${{ vars.FTP_SERVER_DIR || './' }}
+          server-dir: ${{ steps.mode.outputs.server_dir || vars.FTP_SERVER_DIR || './' }}
           dry-run: ${{ steps.mode.outputs.dry_run }}
