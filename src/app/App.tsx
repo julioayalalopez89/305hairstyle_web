@@ -1,6 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Menu, X, Star, Phone, MapPin, Clock, ChevronRight, Instagram, Facebook, MessageCircle } from "lucide-react";
 import logoImg from "@/imports/Screenshot_2026-06-23_211525.png";
+
+// three.js se carga aparte para no frenar la primera pintura de la página.
+const SilkBackground = lazy(() => import("./components/hero/SilkBackground"));
 
 // Datos del negocio (una sola fuente para hero, "Nosotros", contacto y footer).
 const LOCATION_SHORT = "Novus Salon Suites, Miami, FL";
@@ -210,15 +213,14 @@ export default function App() {
         className="relative min-h-screen flex items-center overflow-hidden"
         style={{ background: "linear-gradient(135deg, #FDF6EE 0%, #FAE8F0 50%, #FDF6EE 100%)" }}
       >
-        {/* Decorative circles */}
-        <div className="absolute top-20 right-0 w-[500px] h-[500px] rounded-full opacity-20 pointer-events-none"
-          style={{ background: "radial-gradient(circle, #AB0268 0%, transparent 70%)", transform: "translate(30%, -20%)" }} />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full opacity-10 pointer-events-none"
-          style={{ background: "radial-gradient(circle, #B89A6A 0%, transparent 70%)", transform: "translate(-30%, 30%)" }} />
+        {/* Seda 3D: sigue el cursor o la inclinación del teléfono */}
+        <Suspense fallback={null}>
+          <SilkBackground className="absolute inset-0 w-full h-full pointer-events-none" />
+        </Suspense>
 
-        <div className="max-w-6xl mx-auto px-5 pt-24 pb-16 w-full grid md:grid-cols-2 gap-12 items-center">
+        <div className="relative z-10 max-w-6xl mx-auto px-5 pt-24 pb-24 md:pb-16 w-full grid md:grid-cols-2 gap-12 items-center max-md:self-end">
           {/* Left text */}
-          <div className="order-2 md:order-1">
+          <div className="max-md:bg-[#FDF6EE]/75 max-md:backdrop-blur-[3px] max-md:rounded-3xl max-md:p-5">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/60 border border-border mb-6 backdrop-blur-sm">
               <MapPin size={12} className="text-[#AB0268]" />
               <span className="text-xs font-semibold tracking-widest uppercase text-[#AB0268]">
@@ -267,32 +269,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Right logo/visual */}
-          <div className="order-1 md:order-2 flex justify-center items-center">
-            <div className="relative">
-              <div
-                className="w-72 h-72 md:w-96 md:h-96 rounded-full flex items-center justify-center"
-                style={{ background: "radial-gradient(circle at 40% 40%, #FAE8F0 0%, #FDF6EE 60%, #EAF0E4 100%)" }}
-              >
-                <img
-                  src={logoImg}
-                  alt="305 Hair Style — Miami Hair Salon logo with woman silhouette, palm tree, and city skyline"
-                  className="w-56 h-56 md:w-72 md:h-72 object-contain drop-shadow-sm"
-                />
-              </div>
-              {/* Floating badge */}
-              <div className="absolute -bottom-3 -right-3 bg-white rounded-2xl px-4 py-3 shadow-lg border border-border">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <StarRating count={5} />
-                </div>
-                <div className="text-xs font-bold text-foreground">+200 clientas felices</div>
-              </div>
-              <div className="absolute -top-3 -left-3 bg-[#AB0268] text-white rounded-2xl px-3 py-2 shadow-lg">
-                <div className="text-[10px] font-bold uppercase tracking-wider">Miami</div>
-                <div className="text-xs font-semibold">Desde 2023</div>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Scroll hint */}
