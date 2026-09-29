@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, lazy, Suspense } from "react";
+import BookingFlow from "./components/booking/BookingFlow";
 import { Menu, X, Star, Phone, MapPin, Clock, ChevronRight, Instagram, Facebook, MessageCircle } from "lucide-react";
 import logoLinesImg from "@/imports/logo-lines.png";
 
@@ -21,22 +22,24 @@ const NAV_LINKS = [
   { label: "Contacto", href: "#contacto" },
 ];
 
+// durationMinutes: lo que ocupa la cita en la agenda (la API usa esto para los horarios libres).
+// Son estimaciones iniciales: ajustarlas aquí cuando el salón confirme los tiempos reales.
 const SERVICES = [
   {
     category: "Cabello",
     items: [
-      { name: "Corte + Peinado", price: "$55", desc: "Corte personalizado y blow-out profesional", popular: true },
-      { name: "Coloración Completa", price: "$180+", desc: "Tinte de alta gama, sin amoníaco disponible", popular: false },
-      { name: "Balayage / Highlights", price: "$120+", desc: "Técnica francesa con degradado natural", popular: true },
-      { name: "Alisado Brasileño", price: "$180+", desc: "Keratina profesional, dura hasta 4 meses", popular: false },
+      { name: "Corte + Peinado", durationMinutes: 60, price: "$55", desc: "Corte personalizado y blow-out profesional", popular: true },
+      { name: "Coloración Completa", durationMinutes: 150, price: "$180+", desc: "Tinte de alta gama, sin amoníaco disponible", popular: false },
+      { name: "Balayage / Highlights", durationMinutes: 180, price: "$120+", desc: "Técnica francesa con degradado natural", popular: true },
+      { name: "Alisado Brasileño", durationMinutes: 180, price: "$180+", desc: "Keratina profesional, dura hasta 4 meses", popular: false },
     ],
   },
   {
     category: "Tratamientos",
     items: [
-      { name: "Hidratación Profunda", price: "$35", desc: "Máscara nutritiva + vapor para pelo dañado", popular: false },
-      { name: "Botox Capilar", price: "$180+", desc: "Reparación profunda, brillo y control del frizz.", popular: true },
-      { name: "Keratina", price: "$180+", desc: "Alisado profesional con efecto suave y duradero.", popular: false },
+      { name: "Hidratación Profunda", durationMinutes: 45, price: "$35", desc: "Máscara nutritiva + vapor para pelo dañado", popular: false },
+      { name: "Botox Capilar", durationMinutes: 120, price: "$180+", desc: "Reparación profunda, brillo y control del frizz.", popular: true },
+      { name: "Keratina", durationMinutes: 180, price: "$180+", desc: "Alisado profesional con efecto suave y duradero.", popular: false },
     ],
   },
 ];
@@ -120,8 +123,8 @@ export default function App() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeService, setActiveService] = useState(0);
-  const [formData, setFormData] = useState({ name: "", phone: "", service: "", date: "", message: "" });
-  const [submitted, setSubmitted] = useState(false);
+  // Servicio elegido con "Reservar este servicio"; n cambia en cada clic para reaccionar aunque sea el mismo.
+  const [bookingPreselect, setBookingPreselect] = useState<{ name: string; n: number } | null>(null);
   const heroRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -130,17 +133,15 @@ export default function App() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitted(true);
-    setTimeout(() => setSubmitted(false), 4000);
-    setFormData({ name: "", phone: "", service: "", date: "", message: "" });
-  };
-
   const scrollTo = (href: string) => {
     setMenuOpen(false);
     const el = document.querySelector(href);
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const bookService = (name: string) => {
+    setBookingPreselect((p) => ({ name, n: (p?.n ?? 0) + 1 }));
+    scrollTo("#contacto");
   };
 
   return (
@@ -341,9 +342,11 @@ export default function App() {
 
           <div className="grid sm:grid-cols-2 gap-4">
             {SERVICES[activeService].items.map((item) => (
-              <div
+              <button
+                type="button"
                 key={item.name}
-                className="group relative bg-card rounded-2xl p-6 border border-border hover:border-[var(--brand)]/30 hover:shadow-lg hover:shadow-[var(--brand)]/5 transition-all duration-300 cursor-pointer"
+                onClick={() => bookService(item.name)}
+                className="group relative text-left bg-card rounded-2xl p-6 border border-border hover:border-[var(--brand)]/30 hover:shadow-lg hover:shadow-[var(--brand)]/5 transition-all duration-300 cursor-pointer"
               >
                 {item.popular && (
                   <span className="absolute top-4 right-4 text-[10px] uppercase tracking-widest font-bold text-[var(--brand)] bg-secondary px-2 py-0.5 rounded-full">
@@ -359,11 +362,11 @@ export default function App() {
                   </span>
                 </div>
                 <p className="text-sm text-foreground/60 leading-relaxed">{item.desc}</p>
-                <div className="mt-4 flex items-center gap-1 text-[var(--brand)] text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="mt-4 flex items-center gap-1 text-[var(--brand)] text-xs font-semibold md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                   <span>Reservar este servicio</span>
                   <ChevronRight size={14} />
                 </div>
-              </div>
+              </button>
             ))}
           </div>
 
@@ -520,7 +523,7 @@ export default function App() {
               Reserva tu turno hoy
             </h2>
             <p className="text-foreground/60 leading-relaxed mb-8">
-              Completa el formulario y te contactaremos en menos de 24 horas para confirmar tu cita. También puedes escribirnos por WhatsApp.
+              Elige servicio, día y hora: tu cita queda reservada al momento. Si prefieres, también puedes escribirnos por WhatsApp.
             </p>
 
             <div className="space-y-5">
@@ -576,95 +579,14 @@ export default function App() {
             </div>
           </div>
 
-          {/* Form */}
-          <div className="bg-card rounded-3xl p-8 border border-border shadow-sm">
-            {submitted ? (
-              <div className="text-center py-8">
-                <div className="w-16 h-16 rounded-full bg-[var(--brand)]/10 flex items-center justify-center mx-auto mb-4">
-                  <Star size={28} className="text-[var(--brand)]" />
-                </div>
-                <h3 className="text-2xl font-bold mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-                  ¡Gracias!
-                </h3>
-                <p className="text-foreground/60 text-sm">
-                  Recibimos tu solicitud. Te contactaremos pronto para confirmar tu turno.
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-widest text-foreground/50 mb-1.5">
-                    Nombre completo
-                  </label>
-                  <input
-                    required
-                    type="text"
-                    placeholder="Tu nombre"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-input-background border border-border focus:border-[var(--brand)] focus:outline-none text-sm transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-widest text-foreground/50 mb-1.5">
-                    Teléfono / WhatsApp
-                  </label>
-                  <input
-                    required
-                    type="tel"
-                    placeholder="(305) 000-0000"
-                    value={formData.phone}
-                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-input-background border border-border focus:border-[var(--brand)] focus:outline-none text-sm transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-widest text-foreground/50 mb-1.5">
-                    Servicio deseado
-                  </label>
-                  <select
-                    required
-                    value={formData.service}
-                    onChange={(e) => setFormData({ ...formData, service: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-input-background border border-border focus:border-[var(--brand)] focus:outline-none text-sm transition-colors appearance-none"
-                  >
-                    <option value="">Seleccionar servicio...</option>
-                    {SERVICES.flatMap((cat) => cat.items).map((s) => (
-                      <option key={s.name} value={s.name}>{s.name} — {s.price}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-widest text-foreground/50 mb-1.5">
-                    Fecha preferida
-                  </label>
-                  <input
-                    type="date"
-                    value={formData.date}
-                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-input-background border border-border focus:border-[var(--brand)] focus:outline-none text-sm transition-colors"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold uppercase tracking-widest text-foreground/50 mb-1.5">
-                    Mensaje (opcional)
-                  </label>
-                  <textarea
-                    rows={3}
-                    placeholder="Cuéntanos más sobre lo que deseas..."
-                    value={formData.message}
-                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-input-background border border-border focus:border-[var(--brand)] focus:outline-none text-sm transition-colors resize-none"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  className="w-full py-3.5 rounded-xl bg-[var(--brand)] text-[var(--on-brand)] font-semibold hover:bg-[var(--brand-hover)] transition-all duration-200 hover:shadow-lg hover:shadow-[var(--brand)]/25 active:scale-[0.98]"
-                >
-                  Solicitar turno
-                </button>
-              </form>
-            )}
+          {/* Reserva en línea (API de citas) */}
+          <div id="reservar" className="bg-card rounded-3xl p-6 sm:p-8 border border-border shadow-sm">
+            <BookingFlow
+              services={SERVICES.flatMap((cat) => cat.items.map((i) => ({ ...i, category: cat.category })))}
+              preselect={bookingPreselect}
+              address={ADDRESS}
+              whatsappUrl={WHATSAPP_URL}
+            />
           </div>
         </div>
       </section>
