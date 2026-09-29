@@ -233,7 +233,7 @@ export default function App() {
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               Tu belleza,{" "}
-              <em className="not-italic text-[#AB0268]">nuestra</em>
+              <em className="not-italic text-[#FF6FB5]">nuestra</em>
               <br />
               pasión
             </h1>
