@@ -7,7 +7,9 @@
 # - Manual (Actions → Deploy to Hostinger → Run workflow): despliega siempre.
 #
 # Secrets necesarios: FTP_SERVER, FTP_USERNAME, FTP_PASSWORD. La cuenta FTP
-# apunta a public_html, así que se sube a la raíz del FTP.
+# Carpeta destino: variable FTP_SERVER_DIR (por defecto ./). Con la cuenta FTP
+# principal de Hostinger es ./public_html/; con una cuenta creada con directorio
+# public_html es ./
 
 name: Deploy to Hostinger
 
@@ -62,6 +64,17 @@ jobs:
             echo "::notice::Dry run only (no files changed on the server). Set repo variable AUTO_DEPLOY=true to deploy on every push to main."
           fi
 
+      - name: Check FTP login and list the server folder
+        if: steps.mode.outputs.dry_run == 'true'
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          echo "Contents of the FTP root (target dir: ${{ vars.FTP_SERVER_DIR || './' }}):"
+          curl --silent --show-error --ssl-reqd --list-only --max-time 30 \
+            --user "${FTP_USERNAME}:${FTP_PASSWORD}" "ftp://${FTP_SERVER}/"
+
       - name: Upload to Hostinger (FTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
@@ -70,5 +83,5 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
           local-dir: ./dist/
-          server-dir: ./
+          server-dir: ${{ vars.FTP_SERVER_DIR || './' }}
           dry-run: ${{ steps.mode.outputs.dry_run }}
