@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
+import { HAIR_COLORS, loadHairColor, saveHairColor, type HairColor } from "./hairColors";
 
-// Colores tal cual (sin gestión de color) para que el magenta salga igual que en el CSS.
+// Colores tal cual (sin gestión de color) para que el dorado salga igual que en el CSS.
 THREE.ColorManagement.enabled = false;
 
-// Fondo 3D del hero: mechones de "seda" dorada (pelo largo y lacio) que ondean.
+// Fondo 3D del hero: una melena de "seda" (pelo largo y lacio) que ondea.
+// La visitante puede elegir el color del pelo; se guarda en su navegador.
 // - Escritorio: el mechón se acerca al cursor.
 // - Teléfono: se mueve al inclinar o sacudir el teléfono (giroscopio/acelerómetro),
 //   sin tocar la pantalla. En iPhone Apple exige un toque una sola vez para dar permiso.
@@ -23,16 +25,16 @@ const VERTEX = /* glsl */ `
     float x = mix(uX.x, uX.y, u);
     // el mechón cruza en diagonal con curva en S
     float y = mix(-1.9, 1.5, u) + sin(u * 3.1416) * 0.35 + uYOff;
-    y += (r - 0.5) * 0.9 * (0.6 + 0.4 * sin(u * 3.1416));
+    y += (r - 0.5) * 1.3 * (0.6 + 0.4 * sin(u * 3.1416)) + (seed - 0.5) * 0.12;
     y += (sin(u * 5.0 - w * 0.9 + r * 2.0) * 0.26 + sin(u * 11.0 - w * 1.6 + seed * 6.0) * 0.04) * amp;
-    float z = (r - 0.5) * 0.9 + cos(u * 4.0 - w * 0.7 + r * 3.0) * 0.25 * amp;
+    float z = (r - 0.5) * 1.2 + cos(u * 4.0 - w * 0.7 + r * 3.0) * 0.25 * amp;
     // el cursor (o la inclinación del teléfono) atrae el mechón
     vec2 d = uMouse - vec2(x, y);
     float f = exp(-dot(d, d) * 2.2) * uStrength;
     y += d.y * f * 0.45; z += f * 0.5;
     // giro de la cinta para que brille al moverse
     float tw = sin(u * 6.0 - w * 1.1 + r * 5.0 + seed) * 1.1;
-    float half_ = 0.045 * (0.6 + seed * 0.8);
+    float half_ = 0.04 * (0.6 + seed * 0.8);
     float s = (v - 0.5) * 2.0 * half_;
     return vec3(x, y + cos(tw) * s, z + sin(tw) * s);
   }
@@ -96,6 +98,9 @@ function buildGeometry(ribbons: number, segU: number) {
 export default function SilkBackground({ className }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [needsMotionTap, setNeedsMotionTap] = useState(false);
+  const [hair, setHair] = useState<HairColor>(() => loadHairColor());
+  const hairRef = useRef(hair);
+  hairRef.current = hair;
   const enableMotionRef = useRef<() => void>(() => {});
 
   useEffect(() => {
@@ -117,12 +122,13 @@ export default function SilkBackground({ className }: Props) {
     const halfH = Math.tan(THREE.MathUtils.degToRad(20)) * 5;
 
     const isSmall = window.matchMedia("(max-width: 767px)").matches;
-    const geometry = buildGeometry(isSmall ? 50 : 70, isSmall ? 160 : 220);
+    // Mucho pelo: más cintas en escritorio que en el teléfono para cuidar la batería.
+    const geometry = buildGeometry(isSmall ? 110 : 160, isSmall ? 150 : 200);
     const uniforms = {
       uTime: { value: 0 }, uMouse: { value: new THREE.Vector2(10, 10) }, uStrength: { value: 0 },
       uEnergy: { value: 0 }, uX: { value: new THREE.Vector2(-1, 4) }, uYOff: { value: 0 },
-      cDeep: { value: new THREE.Color("#241709") }, cMain: { value: new THREE.Color("#C9A45C") },
-      cGold: { value: new THREE.Color("#F0D9A0") }, uFade: { value: 1 },
+      cDeep: { value: new THREE.Color(hairRef.current.deep) }, cMain: { value: new THREE.Color(hairRef.current.main) },
+      cGold: { value: new THREE.Color(hairRef.current.shine) }, uFade: { value: 1 },
     };
     const material = new THREE.ShaderMaterial({
       vertexShader: VERTEX, fragmentShader: FRAGMENT, uniforms,
@@ -203,6 +209,7 @@ export default function SilkBackground({ className }: Props) {
 
     // ---- bucle: se pausa si el hero no se ve o la pestaña está oculta ----
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const target = new THREE.Color();
     let visible = true, raf = 0, time = 0, last = performance.now();
     const loop = (now: number) => {
       raf = 0;
@@ -222,6 +229,12 @@ export default function SilkBackground({ className }: Props) {
       }
       pointer.x += (pointer.tx - pointer.x) * 0.08; pointer.y += (pointer.ty - pointer.y) * 0.08;
       pointer.s += (pointer.ts - pointer.s) * 0.05;
+
+      // Cambio de color suave hacia el que eligió la visitante.
+      const h = hairRef.current;
+      uniforms.cDeep.value.lerp(target.set(h.deep), 0.08);
+      uniforms.cMain.value.lerp(target.set(h.main), 0.08);
+      uniforms.cGold.value.lerp(target.set(h.shine), 0.08);
 
       uniforms.uTime.value = time;
       uniforms.uMouse.value.set(pointer.x, pointer.y);
@@ -248,18 +261,51 @@ export default function SilkBackground({ className }: Props) {
     };
   }, []);
 
+  const pickHair = (c: HairColor) => {
+    setHair(c);
+    saveHairColor(c.id);
+  };
+
   return (
     <>
       <canvas ref={canvasRef} aria-hidden="true" className={className} />
-      {needsMotionTap && (
-        <button
-          type="button"
-          onClick={() => enableMotionRef.current()}
-          className="absolute top-20 right-4 z-20 px-3 py-1.5 rounded-full bg-black/60 border border-[#C9A45C]/30 text-xs font-semibold text-[#C9A45C] backdrop-blur-sm shadow-sm"
+      <div className="absolute z-20 right-4 top-20 md:top-auto md:bottom-10 md:right-8 flex flex-col items-end gap-2">
+        {needsMotionTap && (
+          <button
+            type="button"
+            onClick={() => enableMotionRef.current()}
+            className="px-3 py-1.5 rounded-full bg-black/60 border border-[#E8B94A]/30 text-xs font-semibold text-[#E8B94A] backdrop-blur-sm shadow-sm"
+          >
+            ✨ Mover con el teléfono
+          </button>
+        )}
+        <div
+          role="radiogroup"
+          aria-label="Elige el color del pelo"
+          className="flex flex-col items-end gap-1.5 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-sm px-3 py-2"
         >
-          ✨ Mover con el teléfono
-        </button>
-      )}
+          <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-foreground/60">
+            Tu color: <span className="text-[#E8B94A]">{hair.name}</span>
+          </span>
+          <div className="flex gap-1.5">
+            {HAIR_COLORS.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                role="radio"
+                aria-checked={c.id === hair.id}
+                aria-label={c.name}
+                title={c.name}
+                onClick={() => pickHair(c)}
+                className={`w-6 h-6 rounded-full transition-transform hover:scale-110 ${
+                  c.id === hair.id ? "ring-2 ring-[#E8B94A] ring-offset-2 ring-offset-black scale-110" : "ring-1 ring-white/25"
+                }`}
+                style={{ background: `linear-gradient(135deg, ${c.deep} 0%, ${c.main} 55%, ${c.shine} 100%)` }}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
     </>
   );
 }
