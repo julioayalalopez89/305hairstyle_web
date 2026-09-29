@@ -87,16 +87,16 @@ function SalonLogo({ size = 40, className = "" }: { size?: number; className?: s
   // el negro desaparece y las líneas quedan del color elegido en la paleta.
   return (
     <span
-      className={`inline-block ${className}`}
-      style={{ width: size, height: size, background: "var(--brand)", isolation: "isolate", mixBlendMode: "screen" }}
+      className={`inline-block self-center ${className}`}
+      style={{ width: size, background: "var(--brand)", isolation: "isolate", mixBlendMode: "screen", lineHeight: 0 }}
     >
       <img
         src={logoImg}
         alt="305 Hair Style logo"
         width={size}
         height={size}
-        className="object-contain w-full h-full"
-        style={{ filter: "invert(1) grayscale(1) contrast(1.4)", mixBlendMode: "multiply" }}
+        className="block w-full h-auto"
+        style={{ filter: "invert(1) grayscale(1) contrast(2) brightness(1.3)", mixBlendMode: "multiply" }}
       />
     </span>
   );
