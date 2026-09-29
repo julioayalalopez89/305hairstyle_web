@@ -72,8 +72,8 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
         run: |
           echo "Contents of the FTP root (target dir: ${{ vars.FTP_SERVER_DIR || './' }}):"
-          curl --silent --show-error --ssl-reqd --list-only --max-time 30 \
-            --user "${FTP_USERNAME}:${FTP_PASSWORD}" "ftp://${FTP_SERVER}/"
+          curl --verbose --insecure --show-error --ssl-reqd --list-only --max-time 30 \
+            --user "${FTP_USERNAME}:${FTP_PASSWORD}" "ftp://${FTP_SERVER}/" 2>&1 | grep -v -i -E "PASS|USER" 
 
       - name: Upload to Hostinger (FTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
