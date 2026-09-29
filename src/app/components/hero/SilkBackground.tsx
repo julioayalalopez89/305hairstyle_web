@@ -4,7 +4,7 @@ import * as THREE from "three";
 // Colores tal cual (sin gestión de color) para que el magenta salga igual que en el CSS.
 THREE.ColorManagement.enabled = false;
 
-// Fondo 3D del hero: mechones de "seda" (pelo largo y lacio) que ondean.
+// Fondo 3D del hero: mechones de "seda" dorada (pelo largo y lacio) que ondean.
 // - Escritorio: el mechón se acerca al cursor.
 // - Teléfono: se mueve al inclinar o sacudir el teléfono (giroscopio/acelerómetro),
 //   sin tocar la pantalla. En iPhone Apple exige un toque una sola vez para dar permiso.
@@ -121,8 +121,8 @@ export default function SilkBackground({ className }: Props) {
     const uniforms = {
       uTime: { value: 0 }, uMouse: { value: new THREE.Vector2(10, 10) }, uStrength: { value: 0 },
       uEnergy: { value: 0 }, uX: { value: new THREE.Vector2(-1, 4) }, uYOff: { value: 0 },
-      cDeep: { value: new THREE.Color("#4A0A2E") }, cMain: { value: new THREE.Color("#AB0268") },
-      cGold: { value: new THREE.Color("#E9D2A6") }, uFade: { value: 1 },
+      cDeep: { value: new THREE.Color("#241709") }, cMain: { value: new THREE.Color("#C9A45C") },
+      cGold: { value: new THREE.Color("#FFF1CF") }, uFade: { value: 1 },
     };
     const material = new THREE.ShaderMaterial({
       vertexShader: VERTEX, fragmentShader: FRAGMENT, uniforms,
@@ -255,7 +255,7 @@ export default function SilkBackground({ className }: Props) {
         <button
           type="button"
           onClick={() => enableMotionRef.current()}
-          className="absolute top-20 right-4 z-20 px-3 py-1.5 rounded-full bg-white/80 border border-border text-xs font-semibold text-[#AB0268] backdrop-blur-sm shadow-sm"
+          className="absolute top-20 right-4 z-20 px-3 py-1.5 rounded-full bg-black/60 border border-[#C9A45C]/30 text-xs font-semibold text-[#C9A45C] backdrop-blur-sm shadow-sm"
         >
           ✨ Mover con el teléfono
         </button>
