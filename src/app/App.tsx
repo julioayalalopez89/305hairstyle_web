@@ -230,7 +230,7 @@ export default function App() {
           <SilkBackground className="absolute inset-0 w-full h-full pointer-events-none" />
         </Suspense>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-5 pt-24 pb-24 md:pb-16 w-full grid md:grid-cols-2 gap-12 items-center max-md:self-end">
+        <div className="relative z-10 max-w-6xl mx-auto px-5 pt-48 md:pt-24 pb-24 md:pb-16 w-full grid md:grid-cols-2 gap-12 items-center max-md:self-end">
           {/* Left text */}
           <div className="max-md:bg-[#0D0B09]/70 max-md:backdrop-blur-[3px] max-md:rounded-3xl max-md:p-5">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-border mb-6 backdrop-blur-sm">

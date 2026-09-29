@@ -271,7 +271,7 @@ export default function SilkBackground({ className }: Props) {
   return (
     <>
       <canvas ref={canvasRef} aria-hidden="true" className={className} />
-      <div className="absolute z-20 right-4 top-20 md:top-auto md:bottom-10 md:right-8 flex flex-col items-end gap-2">
+      <div className="absolute z-20 right-4 top-[72px] md:top-auto md:bottom-10 md:right-8 flex flex-col items-end gap-2">
         {needsMotionTap && (
           <button
             type="button"
@@ -299,7 +299,7 @@ export default function SilkBackground({ className }: Props) {
                 aria-label={c.name}
                 title={c.name}
                 onClick={() => pickHair(c)}
-                className={`w-6 h-6 rounded-full transition-transform hover:scale-110 ${
+                className={`w-5 h-5 md:w-6 md:h-6 rounded-full transition-transform hover:scale-110 ${
                   c.id === hair.id ? "ring-2 ring-[var(--brand)] ring-offset-2 ring-offset-black scale-110" : "ring-1 ring-white/25"
                 }`}
                 style={{ background: `linear-gradient(135deg, ${c.deep} 0%, ${c.main} 55%, ${c.shine} 100%)` }}
