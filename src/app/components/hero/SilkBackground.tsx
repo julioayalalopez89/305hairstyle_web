@@ -232,9 +232,10 @@ export default function SilkBackground({ className }: Props) {
 
       // Cambio de color suave hacia el que eligió la visitante.
       const h = hairRef.current;
-      uniforms.cDeep.value.lerp(target.set(h.deep), 0.08);
-      uniforms.cMain.value.lerp(target.set(h.main), 0.08);
-      uniforms.cGold.value.lerp(target.set(h.shine), 0.08);
+      const k = 1 - Math.exp(-dt * 6); // ~0.5 s, igual a cualquier velocidad de pantalla
+      uniforms.cDeep.value.lerp(target.set(h.deep), k);
+      uniforms.cMain.value.lerp(target.set(h.main), k);
+      uniforms.cGold.value.lerp(target.set(h.shine), k);
 
       uniforms.uTime.value = time;
       uniforms.uMouse.value.set(pointer.x, pointer.y);
