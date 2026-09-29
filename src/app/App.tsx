@@ -358,7 +358,7 @@ export default function App() {
                 className="group relative bg-card rounded-2xl p-6 border border-border hover:border-[#E6007E]/30 hover:shadow-lg hover:shadow-[#E6007E]/5 transition-all duration-300 cursor-pointer"
               >
                 {item.popular && (
-                  <span className="absolute top-4 right-4 text-[10px] uppercase tracking-widest font-bold text-[#E6007E] bg-secondary px-2 py-0.5 rounded-full">
+                  <span className="absolute -top-2.5 right-4 shadow-sm text-[10px] uppercase tracking-widest font-bold text-[#E6007E] bg-secondary px-2 py-0.5 rounded-full">
                     Popular
                   </span>
                 )}
