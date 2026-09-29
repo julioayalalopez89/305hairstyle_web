@@ -675,7 +675,7 @@ export default function App() {
           <div className="grid md:grid-cols-3 gap-10 mb-10">
             <div>
               <div className="flex items-center gap-2.5 mb-4">
-                <SalonLogo size={34} className="brightness-[10] invert opacity-80" />
+                <SalonLogo size={34} className="opacity-90" />
                 <div>
                   <div className="text-base font-bold tracking-[0.2em]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                     305 HAIR STYLE
