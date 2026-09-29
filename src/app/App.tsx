@@ -2,6 +2,15 @@ import { useState, useEffect, useRef } from "react";
 import { Menu, X, Star, Phone, MapPin, Clock, ChevronRight, Instagram, Facebook, MessageCircle } from "lucide-react";
 import logoImg from "@/imports/Screenshot_2026-06-23_211525.png";
 
+// Datos del negocio (una sola fuente para hero, "Nosotros", contacto y footer).
+const LOCATION_SHORT = "Suit Novus, Miami, FL";
+const ADDRESS = "8631 Coral Wy, Miami, FL 33155";
+const MAPS_URL = "https://maps.app.goo.gl/Twibn3iCQszrQgE4A";
+const HOURS = "Sáb–Lun: 9am – 7pm";
+const PHONE_DISPLAY = "(786) 566-2770";
+const WHATSAPP_URL = "https://wa.me/17865662770";
+const INSTAGRAM_URL = "https://www.instagram.com/305hairstyle/";
+
 const NAV_LINKS = [
   { label: "Servicios", href: "#servicios" },
   { label: "Galería", href: "#galeria" },
@@ -13,48 +22,29 @@ const SERVICES = [
   {
     category: "Cabello",
     items: [
-      { name: "Corte + Peinado", price: "$45", desc: "Corte personalizado y blow-out profesional", popular: true },
-      { name: "Coloración Completa", price: "$80+", desc: "Tinte de alta gama, sin amoníaco disponible", popular: false },
+      { name: "Corte + Peinado", price: "$55", desc: "Corte personalizado y blow-out profesional", popular: true },
+      { name: "Coloración Completa", price: "$180+", desc: "Tinte de alta gama, sin amoníaco disponible", popular: false },
       { name: "Balayage / Highlights", price: "$120+", desc: "Técnica francesa con degradado natural", popular: true },
-      { name: "Alisado Brasileño", price: "$150+", desc: "Keratina profesional, dura hasta 4 meses", popular: false },
+      { name: "Alisado Brasileño", price: "$180+", desc: "Keratina profesional, dura hasta 4 meses", popular: false },
     ],
   },
   {
     category: "Tratamientos",
     items: [
-      { name: "Hidratación Profunda", price: "$55", desc: "Máscara nutritiva + vapor para pelo dañado", popular: false },
-      { name: "Olaplex Treatment", price: "$65", desc: "Reparación de enlaces del cabello", popular: true },
-      { name: "Tinte de Cejas", price: "$25", desc: "Diseño y definición profesional de cejas", popular: false },
-      { name: "Extensiones", price: "$200+", desc: "Tape-in o fusión, colocación incluida", popular: false },
+      { name: "Hidratación Profunda", price: "$35", desc: "Máscara nutritiva + vapor para pelo dañado", popular: false },
+      { name: "Botox Capilar", price: "$180+", desc: "Reparación profunda, brillo y control del frizz.", popular: true },
+      { name: "Keratina", price: "$180+", desc: "Alisado profesional con efecto suave y duradero.", popular: false },
     ],
   },
 ];
 
+// Fotos reales del salón (public/images). Optimizarlas (WebP/tamaños) es parte de #8/#9.
 const GALLERY_PHOTOS = [
-  {
-    url: "https://images.unsplash.com/photo-1675034743339-0b0747047727?w=600&h=800&fit=crop&auto=format",
-    alt: "Cliente recibiendo tratamiento capilar en el salón",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1706629503650-cade709d15e3?w=600&h=400&fit=crop&auto=format",
-    alt: "Interior elegante del salón 305 Hair Style",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1580618672591-eb180b1a973f?w=600&h=800&fit=crop&auto=format",
-    alt: "Estilista profesional usando secador de pelo",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1560869713-bf165a9cfac1?w=600&h=400&fit=crop&auto=format",
-    alt: "Resultado de coloración rubio dorado",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1560869713-7d0a29430803?w=600&h=400&fit=crop&auto=format",
-    alt: "Herramientas profesionales de peluquería",
-  },
-  {
-    url: "https://images.unsplash.com/photo-1633681926019-03bd9325ec20?w=600&h=800&fit=crop&auto=format",
-    alt: "Área de coloración del salón",
-  },
+  { url: "/images/studio-1.png", alt: "Cliente recibiendo tratamiento capilar en el salón" },
+  { url: "/images/studio-2.jpeg", alt: "Interior elegante del salón 305 Hair Style" },
+  { url: "/images/studio-3.jpeg", alt: "Estilista profesional usando secador de pelo" },
+  { url: "/images/studio-4.jpeg", alt: "Resultado de coloración rubio dorado" },
+  { url: "/images/studio-5.png", alt: "Herramientas profesionales de peluquería" },
 ];
 
 const TESTIMONIALS = [
@@ -231,7 +221,11 @@ export default function App() {
           <div className="order-2 md:order-1">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/60 border border-border mb-6 backdrop-blur-sm">
               <MapPin size={12} className="text-[#AB0268]" />
-              <span className="text-xs font-semibold tracking-widest uppercase text-[#AB0268]">Miami, FL</span>
+              <span className="text-xs font-semibold tracking-widest uppercase text-[#AB0268]">
+                <a href={MAPS_URL} target="_blank" rel="noopener noreferrer">
+                  {LOCATION_SHORT}
+                </a>
+              </span>
             </div>
 
             <h1
@@ -265,7 +259,7 @@ export default function App() {
 
             {/* Quick service pills */}
             <div className="flex flex-wrap gap-2">
-              {["Corte + Peinado · $45", "Coloración · $80+", "Balayage · $120+"].map((s) => (
+              {["Corte + Peinado · $55", "Coloración · $180+", "Balayage · $120+"].map((s) => (
                 <span key={s} className="px-3 py-1.5 rounded-xl bg-white/70 border border-border text-xs font-semibold text-foreground/70 backdrop-blur-sm">
                   {s}
                 </span>
@@ -295,7 +289,7 @@ export default function App() {
               </div>
               <div className="absolute -top-3 -left-3 bg-[#AB0268] text-white rounded-2xl px-3 py-2 shadow-lg">
                 <div className="text-[10px] font-bold uppercase tracking-wider">Miami</div>
-                <div className="text-xs font-semibold">Desde 2018</div>
+                <div className="text-xs font-semibold">Desde 2023</div>
               </div>
             </div>
           </div>
@@ -431,7 +425,7 @@ export default function App() {
 
           <div className="mt-8 text-center">
             <a
-              href="https://www.instagram.com"
+              href={INSTAGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2 text-sm font-semibold text-[#AB0268] hover:underline underline-offset-4"
@@ -455,7 +449,7 @@ export default function App() {
               />
             </div>
             <div className="absolute -bottom-6 -right-6 bg-[#AB0268] text-white rounded-2xl p-5 shadow-xl max-w-[160px]">
-              <div className="text-3xl font-bold mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>6+</div>
+              <div className="text-3xl font-bold mb-1" style={{ fontFamily: "'Playfair Display', serif" }}>3+</div>
               <div className="text-xs font-semibold opacity-90">Años transformando looks en Miami</div>
             </div>
           </div>
@@ -463,20 +457,26 @@ export default function App() {
           <div>
             <span className="text-xs uppercase tracking-[0.3em] font-bold text-[#AB0268] mb-4 block">Nuestra historia</span>
             <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight" style={{ fontFamily: "'Playfair Display', serif" }}>
-              Pasión por la belleza, <em className="not-italic text-[#AB0268]">arte</em> en cada corte
+              Más que cabello, transformamos la <em className="not-italic text-[#AB0268]">confianza</em> de cada mujer
             </h2>
             <p className="text-foreground/65 leading-relaxed mb-5">
-              305 Hair Style nació en el corazón de Miami con una misión clara: ofrecer servicios de belleza de clase mundial en un ambiente cálido y acogedor. Nuestro equipo de estilistas certificados combina técnicas europeas con la energía vibrante de Miami.
+              Soy Ana, fundadora de 305 Hair Style, y desde hace 3 años mi pasión ha sido ayudar a cada clienta a sentirse hermosa, segura y feliz con su imagen.
+            </p>
+            <p className="text-foreground/65 leading-relaxed mb-5">
+              Cada corte, color y tratamiento lo realizo con dedicación, utilizando productos de alta calidad y técnicas profesionales para cuidar la salud del cabello y lograr resultados naturales y duraderos.
+            </p>
+            <p className="text-foreground/65 leading-relaxed mb-5">
+              En 305 Hair Style no eres una cita más. Me tomo el tiempo de escuchar lo que deseas y recomendarte lo que mejor se adapta a tu estilo y a tu cabello, para que salgas del salón sintiéndote la mejor versión de ti.
             </p>
             <p className="text-foreground/65 leading-relaxed mb-8">
-              Usamos exclusivamente productos de alta gama sin crueldad animal. Cada cliente es única, y cada visita es una experiencia personalizada.
+              Gracias por confiar en mí. Será un placer ayudarte a lucir el cabello que siempre has soñado.
             </p>
 
             <div className="grid grid-cols-2 gap-4">
               {[
-                { icon: Clock, text: "Lun–Sáb: 9am–7pm" },
-                { icon: MapPin, text: "Miami, FL 33101" },
-                { icon: Phone, text: "(305) 555-0182" },
+                { icon: Clock, text: HOURS },
+                { icon: MapPin, text: ADDRESS },
+                { icon: Phone, text: PHONE_DISPLAY },
                 { icon: Star, text: "5★ en Google Reviews" },
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-center gap-2.5 text-sm text-foreground/70">
@@ -537,7 +537,7 @@ export default function App() {
 
             <div className="space-y-5">
               <a
-                href="https://wa.me/13055550182"
+                href={WHATSAPP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-4 rounded-2xl bg-muted border border-border hover:border-[#AB0268]/30 transition-all group"
@@ -547,13 +547,13 @@ export default function App() {
                 </div>
                 <div>
                   <div className="font-bold text-sm text-foreground">WhatsApp</div>
-                  <div className="text-xs text-foreground/55">(305) 555-0182</div>
+                  <div className="text-xs text-foreground/55">{PHONE_DISPLAY}</div>
                 </div>
                 <ChevronRight size={16} className="ml-auto text-foreground/30 group-hover:text-[#AB0268] transition-colors" />
               </a>
 
               <a
-                href="https://instagram.com"
+                href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex items-center gap-3 p-4 rounded-2xl bg-muted border border-border hover:border-[#AB0268]/30 transition-all group"
@@ -693,7 +693,7 @@ export default function App() {
                     305 HAIR STYLE
                   </div>
                   <div className="text-[9px] uppercase tracking-[0.25em] text-[#B89A6A] font-semibold">
-                    Miami, FL
+                    {LOCATION_SHORT}
                   </div>
                 </div>
               </div>
@@ -722,9 +722,9 @@ export default function App() {
               <h4 className="font-bold text-sm uppercase tracking-widest text-[#B89A6A] mb-4">Contacto</h4>
               <ul className="space-y-3">
                 {[
-                  { icon: MapPin, text: "Miami, FL 33101" },
-                  { icon: Phone, text: "(305) 555-0182" },
-                  { icon: Clock, text: "Lun–Sáb: 9am – 7pm" },
+                  { icon: MapPin, text: ADDRESS },
+                  { icon: Phone, text: PHONE_DISPLAY },
+                  { icon: Clock, text: HOURS },
                 ].map(({ icon: Icon, text }) => (
                   <li key={text} className="flex items-center gap-2 text-sm text-white/55">
                     <Icon size={13} className="text-[#B89A6A] shrink-0" />
@@ -736,7 +736,7 @@ export default function App() {
                 {[Instagram, Facebook].map((Icon, i) => (
                   <a
                     key={i}
-                    href="https://instagram.com"
+                    href={INSTAGRAM_URL}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-[#AB0268] transition-colors"
