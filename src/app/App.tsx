@@ -134,7 +134,7 @@ export default function App() {
       {/* ── NAV ── */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-          scrolled ? "bg-background/95 backdrop-blur-md shadow-sm border-b border-border" : "bg-transparent"
+          scrolled ? "bg-background/95 backdrop-blur-md shadow-sm border-b border-border" : "bg-background/85 backdrop-blur-md"
         }`}
       >
         <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
@@ -208,12 +208,12 @@ export default function App() {
       <section
         ref={heroRef}
         className="relative min-h-screen flex items-center overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #FDF6EE 0%, #FAE8F0 50%, #FDF6EE 100%)" }}
+        style={{ background: "linear-gradient(90deg, rgba(20,12,16,0.88) 0%, rgba(20,12,16,0.6) 55%, rgba(20,12,16,0.3) 100%), url('/images/studio-2.jpeg') center / cover no-repeat" }}
       >
         {/* Decorative circles */}
-        <div className="absolute top-20 right-0 w-[500px] h-[500px] rounded-full opacity-20 pointer-events-none"
+        <div className="absolute top-20 right-0 w-[500px] h-[500px] hidden"
           style={{ background: "radial-gradient(circle, #AB0268 0%, transparent 70%)", transform: "translate(30%, -20%)" }} />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] rounded-full opacity-10 pointer-events-none"
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] hidden"
           style={{ background: "radial-gradient(circle, #B89A6A 0%, transparent 70%)", transform: "translate(-30%, 30%)" }} />
 
         <div className="max-w-6xl mx-auto px-5 pt-24 pb-16 w-full grid md:grid-cols-2 gap-12 items-center">
@@ -229,7 +229,7 @@ export default function App() {
             </div>
 
             <h1
-              className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] mb-4"
+              className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.1] mb-4 text-white"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
               Tu belleza,{" "}
@@ -238,7 +238,7 @@ export default function App() {
               pasión
             </h1>
 
-            <p className="text-lg text-foreground/65 mb-8 max-w-md leading-relaxed font-light">
+            <p className="text-lg text-white/80 mb-8 max-w-md leading-relaxed font-light">
               Salón de belleza de lujo en el corazón de Miami. Especialistas en color, corte y tratamientos capilares de alta gama.
             </p>
 
@@ -251,7 +251,7 @@ export default function App() {
               </button>
               <button
                 onClick={() => scrollTo("#servicios")}
-                className="px-7 py-3.5 rounded-full border-2 border-[#AB0268] text-[#AB0268] font-semibold text-base hover:bg-secondary transition-all duration-200"
+                className="px-7 py-3.5 rounded-full border-2 border-white text-white font-semibold text-base hover:bg-white/10 transition-all duration-200"
               >
                 Ver servicios
               </button>
@@ -299,6 +299,52 @@ export default function App() {
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-foreground/40">
           <span className="text-[10px] uppercase tracking-widest font-semibold">Explorar</span>
           <div className="w-px h-8 bg-current animate-pulse" />
+        </div>
+      </section>
+
+      {/* ── GALLERY ── */}
+      <section id="galeria" className="py-16" style={{ background: "#FAF3ED" }}>
+        <div className="max-w-6xl mx-auto px-5">
+          <div className="text-center mb-14">
+            <span className="text-xs uppercase tracking-[0.3em] font-bold text-[#AB0268] mb-3 block">Nuestro trabajo</span>
+            <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
+              Galería
+            </h2>
+            <p className="text-foreground/60 text-base max-w-md mx-auto">
+              Cada cliente es una obra de arte. Mira algunos de nuestros trabajos más recientes.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+            {GALLERY_PHOTOS.map((photo, i) => (
+              <div
+                key={i}
+                className={`relative overflow-hidden rounded-2xl bg-secondary ${
+                  i === 0 || i === 5 ? "row-span-2" : ""
+                }`}
+                style={{ aspectRatio: i === 0 || i === 5 ? "3/4" : "4/3" }}
+              >
+                <img
+                  src={photo.url}
+                  alt={photo.alt}
+                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#1E1A14]/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-8 text-center">
+            <a
+              href={INSTAGRAM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-[#AB0268] hover:underline underline-offset-4"
+            >
+              <Instagram size={16} />
+              Ver más en @305hairstyle
+            </a>
+          </div>
         </div>
       </section>
 
@@ -387,52 +433,6 @@ export default function App() {
               Reservar un turno
               <ChevronRight size={16} />
             </button>
-          </div>
-        </div>
-      </section>
-
-      {/* ── GALLERY ── */}
-      <section id="galeria" className="py-24" style={{ background: "#FAF3ED" }}>
-        <div className="max-w-6xl mx-auto px-5">
-          <div className="text-center mb-14">
-            <span className="text-xs uppercase tracking-[0.3em] font-bold text-[#AB0268] mb-3 block">Nuestro trabajo</span>
-            <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Playfair Display', serif" }}>
-              Galería
-            </h2>
-            <p className="text-foreground/60 text-base max-w-md mx-auto">
-              Cada cliente es una obra de arte. Mira algunos de nuestros trabajos más recientes.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
-            {GALLERY_PHOTOS.map((photo, i) => (
-              <div
-                key={i}
-                className={`relative overflow-hidden rounded-2xl bg-secondary ${
-                  i === 0 || i === 5 ? "row-span-2" : ""
-                }`}
-                style={{ aspectRatio: i === 0 || i === 5 ? "3/4" : "4/3" }}
-              >
-                <img
-                  src={photo.url}
-                  alt={photo.alt}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#1E1A14]/30 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300" />
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 text-center">
-            <a
-              href={INSTAGRAM_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-[#AB0268] hover:underline underline-offset-4"
-            >
-              <Instagram size={16} />
-              Ver más en @305hairstyle
-            </a>
           </div>
         </div>
       </section>
