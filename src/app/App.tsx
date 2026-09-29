@@ -3,12 +3,12 @@ import { Menu, X, Star, Phone, MapPin, Clock, ChevronRight, Instagram, Facebook,
 import logoImg from "@/imports/Screenshot_2026-06-23_211525.png";
 
 // Datos del negocio (una sola fuente para hero, "Nosotros", contacto y footer).
-const LOCATION_SHORT = "Suit Novus, Miami, FL";
+const LOCATION_SHORT = "Novus Salon Suites, Miami, FL";
 const ADDRESS = "8631 Coral Wy, Miami, FL 33155";
 const MAPS_URL = "https://maps.app.goo.gl/Twibn3iCQszrQgE4A";
 const HOURS = "Sáb–Lun: 9am – 7pm";
-const PHONE_DISPLAY = "(786) 566-2770";
-const WHATSAPP_URL = "https://wa.me/17865662770";
+const PHONE_DISPLAY = "(786) 566-9938";
+const WHATSAPP_URL = "https://wa.me/17865669938";
 const INSTAGRAM_URL = "https://www.instagram.com/305hairstyle/";
 
 const NAV_LINKS = [
