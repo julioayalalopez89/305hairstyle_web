@@ -56,7 +56,7 @@ const FRAGMENT = /* glsl */ `
     // brillo anisótropo (Kajiya-Kay), el reflejo típico del pelo
     float th = dot(T, H);
     float k = sqrt(max(0.0, 1.0 - th * th));
-    float spec = pow(k, 90.0) * 0.9 + pow(k, 18.0) * 0.25;
+    float spec = pow(k, 90.0) * 0.7 + pow(k, 18.0) * 0.18;
     vec3 base = mix(cDeep, cMain, 0.35 + 0.65 * vRib);
     vec3 col = base * diff + cGold * spec;
     float a = smoothstep(0.0, 0.08, vU) * smoothstep(1.0, 0.9, vU) * uFade;
@@ -122,7 +122,7 @@ export default function SilkBackground({ className }: Props) {
       uTime: { value: 0 }, uMouse: { value: new THREE.Vector2(10, 10) }, uStrength: { value: 0 },
       uEnergy: { value: 0 }, uX: { value: new THREE.Vector2(-1, 4) }, uYOff: { value: 0 },
       cDeep: { value: new THREE.Color("#241709") }, cMain: { value: new THREE.Color("#C9A45C") },
-      cGold: { value: new THREE.Color("#FFF1CF") }, uFade: { value: 1 },
+      cGold: { value: new THREE.Color("#F0D9A0") }, uFade: { value: 1 },
     };
     const material = new THREE.ShaderMaterial({
       vertexShader: VERTEX, fragmentShader: FRAGMENT, uniforms,

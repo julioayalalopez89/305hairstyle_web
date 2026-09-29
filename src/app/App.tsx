@@ -89,7 +89,8 @@ function SalonLogo({ size = 40, className = "" }: { size?: number; className?: s
       width={size}
       height={size}
       className={`object-contain ${className}`}
-      style={{ width: size, height: size }}
+      // El logo es línea oscura sobre blanco: se invierte y se tiñe de dorado para el tema oscuro.
+      style={{ width: size, height: size, filter: "invert(1) sepia(1) saturate(2.2) hue-rotate(-12deg) brightness(0.95)", mixBlendMode: "screen" }}
     />
   );
 }
