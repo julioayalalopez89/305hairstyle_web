@@ -46,9 +46,10 @@ export function formatDayShort(date: string): { weekday: string; day: string; mo
   return { weekday: f({ weekday: "short" }).replace(".", ""), day: f({ day: "numeric" }), month: f({ month: "short" }).replace(".", "") };
 }
 
-/** "sábado, 3 de octubre" */
+/** "Sábado, 3 de octubre" (solo la primera letra en mayúscula) */
 export function formatDayLong(date: string): string {
-  return new Intl.DateTimeFormat("es-US", { timeZone: "UTC", weekday: "long", day: "numeric", month: "long" }).format(noon(date));
+  const text = new Intl.DateTimeFormat("es-US", { timeZone: "UTC", weekday: "long", day: "numeric", month: "long" }).format(noon(date));
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 /** "14:30" → "2:30 pm" */

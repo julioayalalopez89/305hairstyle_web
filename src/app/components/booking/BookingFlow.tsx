@@ -138,7 +138,7 @@ export default function BookingFlow({ services, preselect, address, whatsappUrl 
         <p className="text-foreground/60 text-sm mb-6">Gracias, {booked.customerName.split(" ")[0]}. Te esperamos.</p>
         <dl className="text-left rounded-2xl border border-border bg-muted p-5 space-y-3 text-sm mb-6">
           <Row label="Servicio" value={`${service.name} · ${service.price}`} />
-          <Row label="Día" value={formatDayLong(date)} capitalize />
+          <Row label="Día" value={formatDayLong(date)} />
           <Row label="Hora" value={`${formatTime(time)} (${formatDuration(service.durationMinutes)})`} />
           <Row label="Dónde" value={address} />
         </dl>
@@ -180,7 +180,7 @@ export default function BookingFlow({ services, preselect, address, whatsappUrl 
       {service && step !== "service" && (
         <p className="mb-4 text-sm text-foreground/70">
           <span className="font-semibold text-foreground">{service.name}</span> · {formatDuration(service.durationMinutes)}
-          {date && step !== "date" && <> · <span className="capitalize">{formatDayLong(date)}</span></>}
+          {date && step !== "date" && <> · {formatDayLong(date).toLowerCase()}</>}
           {time && step === "details" && <> · {formatTime(time)}</>}
         </p>
       )}
@@ -356,11 +356,11 @@ function FieldError({ message }: { message?: string }) {
   return message ? <p className="mt-1 text-xs text-[#F08A8A]">{message}</p> : null;
 }
 
-function Row({ label, value, capitalize }: { label: string; value: string; capitalize?: boolean }) {
+function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-4">
       <dt className="text-foreground/50">{label}</dt>
-      <dd className={`font-semibold text-right ${capitalize ? "capitalize" : ""}`}>{value}</dd>
+      <dd className="font-semibold text-right">{value}</dd>
     </div>
   );
 }
