@@ -1,8 +1,8 @@
 # Build del sitio y deploy a Hostinger por FTP.
 #
-# - Pull requests: publica una VISTA PREVIA en https://305hairstyle.com/preview/
-#   (carpeta public_html/preview, no indexada). El sitio real no cambia.
-#   Si hay varios PRs abiertos, la vista previa muestra el último que se actualizó.
+# - Pull requests: cada PR publica su propia VISTA PREVIA en
+#   https://305hairstyle.com/preview/pr-<número>/ (carpeta public_html/preview/pr-<n>,
+#   no indexada). Así se pueden comparar varios diseños a la vez. El sitio real no cambia.
 # - Push a main: despliega SOLO si la variable del repo AUTO_DEPLOY vale "true"
 #   (Settings → Secrets and variables → Actions → Variables).
 # - Manual (Actions → Deploy to Hostinger → Run workflow): despliega siempre.
@@ -44,7 +44,7 @@ jobs:
       - name: Build
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            npm run build -- --base=/preview/
+            npm run build -- --base=/preview/pr-${{ github.event.pull_request.number }}/
           else
             npm run build
           fi
@@ -63,8 +63,8 @@ jobs:
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             echo "dry_run=false" >> "$GITHUB_OUTPUT"
-            echo "server_dir=./preview/" >> "$GITHUB_OUTPUT"
-            echo "::notice::Preview: https://305hairstyle.com/preview/"
+            echo "server_dir=./preview/pr-${{ github.event.pull_request.number }}/" >> "$GITHUB_OUTPUT"
+            echo "::notice::Preview: https://305hairstyle.com/preview/pr-${{ github.event.pull_request.number }}/"
           elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "dry_run=false" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event_name }}" = "push" ] && [ "${{ vars.AUTO_DEPLOY }}" = "true" ]; then
@@ -89,7 +89,7 @@ jobs:
       - name: Preview link in the PR
         if: github.event_name == 'pull_request'
         run: |
-          echo "### 👀 Preview: https://305hairstyle.com/preview/" >> "$GITHUB_STEP_SUMMARY"
+          echo "### 👀 Preview: https://305hairstyle.com/preview/pr-${{ github.event.pull_request.number }}/" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload to Hostinger (FTP)
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
