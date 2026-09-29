@@ -6,10 +6,10 @@ export const HAIR_COLORS: HairColor[] = [
   { id: "oro", name: "Oro", deep: "#3A2608", main: "#E8B94A", shine: "#FFEBB0" },
   { id: "rubio", name: "Rubio miel", deep: "#4A3212", main: "#D9B26F", shine: "#FFF1CF" },
   { id: "platino", name: "Platino", deep: "#3A3A40", main: "#C9CCD3", shine: "#FFFFFF" },
-  { id: "castano", name: "Castaño", deep: "#1F0F06", main: "#6B3A1E", shine: "#D9A57A" },
-  { id: "negro", name: "Negro azabache", deep: "#050505", main: "#2A2A2E", shine: "#B8C4D6" },
-  { id: "cobrizo", name: "Cobrizo", deep: "#3A1206", main: "#B5501F", shine: "#FFB27A" },
-  { id: "borgona", name: "Borgoña", deep: "#2A0510", main: "#7E1734", shine: "#F2A0B5" },
+  { id: "castano", name: "Castaño", deep: "#140903", main: "#4A2410", shine: "#8C5A38" },
+  { id: "negro", name: "Negro azabache", deep: "#030303", main: "#141416", shine: "#4E5664" },
+  { id: "cobrizo", name: "Cobrizo", deep: "#2A0C03", main: "#A4441A", shine: "#E88A55" },
+  { id: "borgona", name: "Borgoña", deep: "#1E030B", main: "#6A1029", shine: "#C25A78" },
   { id: "rosa", name: "Rosa", deep: "#3A0A24", main: "#D9478F", shine: "#FFC4E1" },
 ];
 
