@@ -82,16 +82,23 @@ const TESTIMONIALS = [
 ];
 
 function SalonLogo({ size = 40, className = "" }: { size?: number; className?: string }) {
+  // El logo es línea oscura sobre blanco. Se invierte (líneas blancas sobre negro),
+  // se multiplica por el color de acento y el contenedor se funde con "screen":
+  // el negro desaparece y las líneas quedan del color elegido en la paleta.
   return (
-    <img
-      src={logoImg}
-      alt="305 Hair Style logo"
-      width={size}
-      height={size}
-      className={`object-contain ${className}`}
-      // El logo es línea oscura sobre blanco: se invierte y se tiñe de dorado para el tema oscuro.
-      style={{ width: size, height: size, filter: "invert(1) sepia(1) saturate(2.2) hue-rotate(-12deg) brightness(0.95)", mixBlendMode: "screen" }}
-    />
+    <span
+      className={`inline-block ${className}`}
+      style={{ width: size, height: size, background: "var(--brand)", isolation: "isolate", mixBlendMode: "screen" }}
+    >
+      <img
+        src={logoImg}
+        alt="305 Hair Style logo"
+        width={size}
+        height={size}
+        className="object-contain w-full h-full"
+        style={{ filter: "invert(1) grayscale(1) contrast(1.4)", mixBlendMode: "multiply" }}
+      />
+    </span>
   );
 }
 
@@ -99,7 +106,7 @@ function StarRating({ count }: { count: number }) {
   return (
     <div className="flex gap-0.5">
       {Array.from({ length: count }).map((_, i) => (
-        <Star key={i} size={14} className="fill-[#E8B94A] text-[#E8B94A]" />
+        <Star key={i} size={14} className="fill-[var(--brand)] text-[var(--brand)]" />
       ))}
     </div>
   );
@@ -152,7 +159,7 @@ export default function App() {
               <div className="text-base font-bold tracking-widest text-foreground" style={{ fontFamily: "'Cormorant Garamond', serif", letterSpacing: "0.15em" }}>
                 305
               </div>
-              <div className="text-[9px] uppercase tracking-[0.25em] text-[#E8B94A] font-semibold -mt-1">
+              <div className="text-[9px] uppercase tracking-[0.25em] text-[var(--brand)] font-semibold -mt-1">
                 Hair Style
               </div>
             </div>
@@ -163,14 +170,14 @@ export default function App() {
               <button
                 key={l.href}
                 onClick={() => scrollTo(l.href)}
-                className="text-sm font-medium text-foreground/70 hover:text-[#E8B94A] transition-colors tracking-wide"
+                className="text-sm font-medium text-foreground/70 hover:text-[var(--brand)] transition-colors tracking-wide"
               >
                 {l.label}
               </button>
             ))}
             <button
               onClick={() => scrollTo("#contacto")}
-              className="px-5 py-2 text-sm font-semibold rounded-full bg-[#E8B94A] text-[#0D0B09] hover:bg-[#F5D27A] transition-all duration-200 hover:shadow-lg hover:shadow-[#E8B94A]/20"
+              className="px-5 py-2 text-sm font-semibold rounded-full bg-[var(--brand)] text-[var(--on-brand)] hover:bg-[var(--brand-hover)] transition-all duration-200 hover:shadow-lg hover:shadow-[var(--brand)]/20"
             >
               Reservar
             </button>
@@ -193,14 +200,14 @@ export default function App() {
               <button
                 key={l.href}
                 onClick={() => scrollTo(l.href)}
-                className="text-left text-base font-medium py-2 text-foreground/80 hover:text-[#E8B94A] transition-colors"
+                className="text-left text-base font-medium py-2 text-foreground/80 hover:text-[var(--brand)] transition-colors"
               >
                 {l.label}
               </button>
             ))}
             <button
               onClick={() => scrollTo("#contacto")}
-              className="mt-2 w-full py-3 text-sm font-semibold rounded-full bg-[#E8B94A] text-[#0D0B09]"
+              className="mt-2 w-full py-3 text-sm font-semibold rounded-full bg-[var(--brand)] text-[var(--on-brand)]"
             >
               Reservar turno
             </button>
@@ -223,8 +230,8 @@ export default function App() {
           {/* Left text */}
           <div className="max-md:bg-[#0D0B09]/70 max-md:backdrop-blur-[3px] max-md:rounded-3xl max-md:p-5">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-border mb-6 backdrop-blur-sm">
-              <MapPin size={12} className="text-[#E8B94A]" />
-              <span className="text-xs font-semibold tracking-widest uppercase text-[#E8B94A]">
+              <MapPin size={12} className="text-[var(--brand)]" />
+              <span className="text-xs font-semibold tracking-widest uppercase text-[var(--brand)]">
                 <a href={MAPS_URL} target="_blank" rel="noopener noreferrer">
                   {LOCATION_SHORT}
                 </a>
@@ -236,7 +243,7 @@ export default function App() {
               style={{ fontFamily: "'Cormorant Garamond', serif" }}
             >
               Tu belleza,{" "}
-              <em className="italic font-medium text-[#E8B94A]">nuestra</em>
+              <em className="italic font-medium text-[var(--brand)]">nuestra</em>
               <br />
               pasión
             </h1>
@@ -248,13 +255,13 @@ export default function App() {
             <div className="flex flex-wrap gap-3 mb-10">
               <button
                 onClick={() => scrollTo("#contacto")}
-                className="px-7 py-3.5 rounded-full bg-[#E8B94A] text-[#0D0B09] font-semibold text-base hover:bg-[#F5D27A] transition-all duration-200 hover:shadow-xl hover:shadow-[#E8B94A]/25 active:scale-95"
+                className="px-7 py-3.5 rounded-full bg-[var(--brand)] text-[var(--on-brand)] font-semibold text-base hover:bg-[var(--brand-hover)] transition-all duration-200 hover:shadow-xl hover:shadow-[var(--brand)]/25 active:scale-95"
               >
                 Reservar turno
               </button>
               <button
                 onClick={() => scrollTo("#servicios")}
-                className="px-7 py-3.5 rounded-full border-2 border-[#E8B94A] text-[#E8B94A] font-semibold text-base hover:bg-secondary transition-all duration-200"
+                className="px-7 py-3.5 rounded-full border-2 border-[var(--brand)] text-[var(--brand)] font-semibold text-base hover:bg-secondary transition-all duration-200"
               >
                 Ver servicios
               </button>
@@ -280,7 +287,7 @@ export default function App() {
       </section>
 
       {/* ── QUICK STATS ── */}
-      <section className="bg-[#15110E] text-[#E8B94A] border-y border-[#E8B94A]/25 py-10">
+      <section className="bg-[#15110E] text-[var(--brand)] border-y border-[var(--brand)]/25 py-10">
         <div className="max-w-5xl mx-auto px-5 grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
           {[
             { value: "+200", label: "Clientas satisfechas" },
@@ -302,7 +309,7 @@ export default function App() {
       <section id="servicios" className="py-24 bg-background">
         <div className="max-w-5xl mx-auto px-5">
           <div className="text-center mb-14">
-            <span className="text-xs uppercase tracking-[0.3em] font-bold text-[#E8B94A] mb-3 block">Lo que ofrecemos</span>
+            <span className="text-xs uppercase tracking-[0.3em] font-bold text-[var(--brand)] mb-3 block">Lo que ofrecemos</span>
             <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
               Nuestros servicios
             </h2>
@@ -319,7 +326,7 @@ export default function App() {
                 onClick={() => setActiveService(i)}
                 className={`px-6 py-2.5 rounded-full text-sm font-semibold transition-all duration-200 ${
                   activeService === i
-                    ? "bg-[#E8B94A] text-[#0D0B09] shadow-lg shadow-[#E8B94A]/20"
+                    ? "bg-[var(--brand)] text-[var(--on-brand)] shadow-lg shadow-[var(--brand)]/20"
                     : "bg-secondary text-foreground/70 hover:text-foreground"
                 }`}
               >
@@ -332,10 +339,10 @@ export default function App() {
             {SERVICES[activeService].items.map((item) => (
               <div
                 key={item.name}
-                className="group relative bg-card rounded-2xl p-6 border border-border hover:border-[#E8B94A]/30 hover:shadow-lg hover:shadow-[#E8B94A]/5 transition-all duration-300 cursor-pointer"
+                className="group relative bg-card rounded-2xl p-6 border border-border hover:border-[var(--brand)]/30 hover:shadow-lg hover:shadow-[var(--brand)]/5 transition-all duration-300 cursor-pointer"
               >
                 {item.popular && (
-                  <span className="absolute top-4 right-4 text-[10px] uppercase tracking-widest font-bold text-[#E8B94A] bg-secondary px-2 py-0.5 rounded-full">
+                  <span className="absolute top-4 right-4 text-[10px] uppercase tracking-widest font-bold text-[var(--brand)] bg-secondary px-2 py-0.5 rounded-full">
                     Popular
                   </span>
                 )}
@@ -343,12 +350,12 @@ export default function App() {
                   <h3 className="text-lg font-bold text-foreground" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                     {item.name}
                   </h3>
-                  <span className="text-xl font-bold text-[#E8B94A] shrink-0" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
+                  <span className="text-xl font-bold text-[var(--brand)] shrink-0" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                     {item.price}
                   </span>
                 </div>
                 <p className="text-sm text-foreground/60 leading-relaxed">{item.desc}</p>
-                <div className="mt-4 flex items-center gap-1 text-[#E8B94A] text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="mt-4 flex items-center gap-1 text-[var(--brand)] text-xs font-semibold opacity-0 group-hover:opacity-100 transition-opacity">
                   <span>Reservar este servicio</span>
                   <ChevronRight size={14} />
                 </div>
@@ -359,7 +366,7 @@ export default function App() {
           <div className="mt-8 text-center">
             <button
               onClick={() => scrollTo("#contacto")}
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[#E8B94A] text-[#0D0B09] font-semibold hover:bg-[#F5D27A] transition-all duration-200 hover:shadow-lg hover:shadow-[#E8B94A]/25"
+              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-[var(--brand)] text-[var(--on-brand)] font-semibold hover:bg-[var(--brand-hover)] transition-all duration-200 hover:shadow-lg hover:shadow-[var(--brand)]/25"
             >
               Reservar un turno
               <ChevronRight size={16} />
@@ -372,7 +379,7 @@ export default function App() {
       <section id="galeria" className="py-24" style={{ background: "#15110E" }}>
         <div className="max-w-6xl mx-auto px-5">
           <div className="text-center mb-14">
-            <span className="text-xs uppercase tracking-[0.3em] font-bold text-[#E8B94A] mb-3 block">Nuestro trabajo</span>
+            <span className="text-xs uppercase tracking-[0.3em] font-bold text-[var(--brand)] mb-3 block">Nuestro trabajo</span>
             <h2 className="text-4xl md:text-5xl font-bold mb-4" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
               Galería
             </h2>
@@ -405,7 +412,7 @@ export default function App() {
               href={INSTAGRAM_URL}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-[#E8B94A] hover:underline underline-offset-4"
+              className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--brand)] hover:underline underline-offset-4"
             >
               <Instagram size={16} />
               Ver más en @305hairstyle
@@ -425,16 +432,16 @@ export default function App() {
                 className="w-full h-full object-cover"
               />
             </div>
-            <div className="absolute -bottom-6 -right-6 bg-[#E8B94A] text-[#0D0B09] rounded-2xl p-5 shadow-xl max-w-[160px]">
+            <div className="absolute -bottom-6 -right-6 bg-[var(--brand)] text-[var(--on-brand)] rounded-2xl p-5 shadow-xl max-w-[160px]">
               <div className="text-3xl font-bold mb-1" style={{ fontFamily: "'Cormorant Garamond', serif" }}>3+</div>
               <div className="text-xs font-semibold opacity-90">Años transformando looks en Miami</div>
             </div>
           </div>
 
           <div>
-            <span className="text-xs uppercase tracking-[0.3em] font-bold text-[#E8B94A] mb-4 block">Nuestra historia</span>
+            <span className="text-xs uppercase tracking-[0.3em] font-bold text-[var(--brand)] mb-4 block">Nuestra historia</span>
             <h2 className="text-4xl md:text-5xl font-bold mb-6 leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
-              Más que cabello, transformamos la <em className="italic font-medium text-[#E8B94A]">confianza</em> de cada mujer
+              Más que cabello, transformamos la <em className="italic font-medium text-[var(--brand)]">confianza</em> de cada mujer
             </h2>
             <p className="text-foreground/65 leading-relaxed mb-5">
               Soy Ana, fundadora de 305 Hair Style, y desde hace 3 años mi pasión ha sido ayudar a cada clienta a sentirse hermosa, segura y feliz con su imagen.
@@ -458,7 +465,7 @@ export default function App() {
               ].map(({ icon: Icon, text }) => (
                 <div key={text} className="flex items-center gap-2.5 text-sm text-foreground/70">
                   <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center shrink-0">
-                    <Icon size={14} className="text-[#E8B94A]" />
+                    <Icon size={14} className="text-[var(--brand)]" />
                   </div>
                   <span className="font-medium">{text}</span>
                 </div>
@@ -472,7 +479,7 @@ export default function App() {
       <section className="py-24" style={{ background: "#110D0A" }}>
         <div className="max-w-5xl mx-auto px-5">
           <div className="text-center mb-14">
-            <span className="text-xs uppercase tracking-[0.3em] font-bold text-[#E8B94A] mb-3 block">Reseñas</span>
+            <span className="text-xs uppercase tracking-[0.3em] font-bold text-[var(--brand)] mb-3 block">Reseñas</span>
             <h2 className="text-4xl md:text-5xl font-bold" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
               Lo que dicen nuestras clientas
             </h2>
@@ -480,13 +487,13 @@ export default function App() {
 
           <div className="grid sm:grid-cols-2 gap-5">
             {TESTIMONIALS.map((t) => (
-              <div key={t.name} className="bg-[#1F1914] rounded-2xl p-6 shadow-sm border border-[#E8B94A]/15">
+              <div key={t.name} className="bg-[#1F1914] rounded-2xl p-6 shadow-sm border border-[var(--brand)]/15">
                 <StarRating count={t.rating} />
                 <p className="mt-4 mb-5 text-foreground/75 leading-relaxed text-sm italic">
                   "{t.text}"
                 </p>
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-[#E8B94A] flex items-center justify-center text-[#0D0B09] text-xs font-bold shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-[var(--brand)] flex items-center justify-center text-[var(--on-brand)] text-xs font-bold shrink-0">
                     {t.avatar}
                   </div>
                   <div>
@@ -504,7 +511,7 @@ export default function App() {
       <section id="contacto" className="py-24 bg-background">
         <div className="max-w-5xl mx-auto px-5 grid md:grid-cols-2 gap-16 items-start">
           <div>
-            <span className="text-xs uppercase tracking-[0.3em] font-bold text-[#E8B94A] mb-4 block">Agenda tu visita</span>
+            <span className="text-xs uppercase tracking-[0.3em] font-bold text-[var(--brand)] mb-4 block">Agenda tu visita</span>
             <h2 className="text-4xl md:text-5xl font-bold mb-5 leading-tight" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
               Reserva tu turno hoy
             </h2>
@@ -517,7 +524,7 @@ export default function App() {
                 href={WHATSAPP_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-4 rounded-2xl bg-muted border border-border hover:border-[#E8B94A]/30 transition-all group"
+                className="flex items-center gap-3 p-4 rounded-2xl bg-muted border border-border hover:border-[var(--brand)]/30 transition-all group"
               >
                 <div className="w-10 h-10 rounded-xl bg-[#25D366] flex items-center justify-center shrink-0">
                   <MessageCircle size={18} className="text-white" />
@@ -526,14 +533,14 @@ export default function App() {
                   <div className="font-bold text-sm text-foreground">WhatsApp</div>
                   <div className="text-xs text-foreground/55">{PHONE_DISPLAY}</div>
                 </div>
-                <ChevronRight size={16} className="ml-auto text-foreground/30 group-hover:text-[#E8B94A] transition-colors" />
+                <ChevronRight size={16} className="ml-auto text-foreground/30 group-hover:text-[var(--brand)] transition-colors" />
               </a>
 
               <a
                 href={INSTAGRAM_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-4 rounded-2xl bg-muted border border-border hover:border-[#E8B94A]/30 transition-all group"
+                className="flex items-center gap-3 p-4 rounded-2xl bg-muted border border-border hover:border-[var(--brand)]/30 transition-all group"
               >
                 <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
                   style={{ background: "linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888)" }}
@@ -544,14 +551,14 @@ export default function App() {
                   <div className="font-bold text-sm text-foreground">Instagram</div>
                   <div className="text-xs text-foreground/55">@305hairstyle</div>
                 </div>
-                <ChevronRight size={16} className="ml-auto text-foreground/30 group-hover:text-[#E8B94A] transition-colors" />
+                <ChevronRight size={16} className="ml-auto text-foreground/30 group-hover:text-[var(--brand)] transition-colors" />
               </a>
 
               <a
                 href="https://facebook.com"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 p-4 rounded-2xl bg-muted border border-border hover:border-[#E8B94A]/30 transition-all group"
+                className="flex items-center gap-3 p-4 rounded-2xl bg-muted border border-border hover:border-[var(--brand)]/30 transition-all group"
               >
                 <div className="w-10 h-10 rounded-xl bg-[#1877F2] flex items-center justify-center shrink-0">
                   <Facebook size={18} className="text-white" />
@@ -560,7 +567,7 @@ export default function App() {
                   <div className="font-bold text-sm text-foreground">Facebook</div>
                   <div className="text-xs text-foreground/55">305 Hair Style Miami</div>
                 </div>
-                <ChevronRight size={16} className="ml-auto text-foreground/30 group-hover:text-[#E8B94A] transition-colors" />
+                <ChevronRight size={16} className="ml-auto text-foreground/30 group-hover:text-[var(--brand)] transition-colors" />
               </a>
             </div>
           </div>
@@ -569,8 +576,8 @@ export default function App() {
           <div className="bg-card rounded-3xl p-8 border border-border shadow-sm">
             {submitted ? (
               <div className="text-center py-8">
-                <div className="w-16 h-16 rounded-full bg-[#E8B94A]/10 flex items-center justify-center mx-auto mb-4">
-                  <Star size={28} className="text-[#E8B94A]" />
+                <div className="w-16 h-16 rounded-full bg-[var(--brand)]/10 flex items-center justify-center mx-auto mb-4">
+                  <Star size={28} className="text-[var(--brand)]" />
                 </div>
                 <h3 className="text-2xl font-bold mb-2" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                   ¡Gracias!
@@ -591,7 +598,7 @@ export default function App() {
                     placeholder="Tu nombre"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-input-background border border-border focus:border-[#E8B94A] focus:outline-none text-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-xl bg-input-background border border-border focus:border-[var(--brand)] focus:outline-none text-sm transition-colors"
                   />
                 </div>
                 <div>
@@ -604,7 +611,7 @@ export default function App() {
                     placeholder="(305) 000-0000"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-input-background border border-border focus:border-[#E8B94A] focus:outline-none text-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-xl bg-input-background border border-border focus:border-[var(--brand)] focus:outline-none text-sm transition-colors"
                   />
                 </div>
                 <div>
@@ -615,7 +622,7 @@ export default function App() {
                     required
                     value={formData.service}
                     onChange={(e) => setFormData({ ...formData, service: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-input-background border border-border focus:border-[#E8B94A] focus:outline-none text-sm transition-colors appearance-none"
+                    className="w-full px-4 py-3 rounded-xl bg-input-background border border-border focus:border-[var(--brand)] focus:outline-none text-sm transition-colors appearance-none"
                   >
                     <option value="">Seleccionar servicio...</option>
                     {SERVICES.flatMap((cat) => cat.items).map((s) => (
@@ -631,7 +638,7 @@ export default function App() {
                     type="date"
                     value={formData.date}
                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-input-background border border-border focus:border-[#E8B94A] focus:outline-none text-sm transition-colors"
+                    className="w-full px-4 py-3 rounded-xl bg-input-background border border-border focus:border-[var(--brand)] focus:outline-none text-sm transition-colors"
                   />
                 </div>
                 <div>
@@ -643,12 +650,12 @@ export default function App() {
                     placeholder="Cuéntanos más sobre lo que deseas..."
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                    className="w-full px-4 py-3 rounded-xl bg-input-background border border-border focus:border-[#E8B94A] focus:outline-none text-sm transition-colors resize-none"
+                    className="w-full px-4 py-3 rounded-xl bg-input-background border border-border focus:border-[var(--brand)] focus:outline-none text-sm transition-colors resize-none"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-3.5 rounded-xl bg-[#E8B94A] text-[#0D0B09] font-semibold hover:bg-[#F5D27A] transition-all duration-200 hover:shadow-lg hover:shadow-[#E8B94A]/25 active:scale-[0.98]"
+                  className="w-full py-3.5 rounded-xl bg-[var(--brand)] text-[var(--on-brand)] font-semibold hover:bg-[var(--brand-hover)] transition-all duration-200 hover:shadow-lg hover:shadow-[var(--brand)]/25 active:scale-[0.98]"
                 >
                   Solicitar turno
                 </button>
@@ -659,7 +666,7 @@ export default function App() {
       </section>
 
       {/* ── FOOTER ── */}
-      <footer className="bg-[#080706] text-white py-14 border-t border-[#E8B94A]/15">
+      <footer className="bg-[#080706] text-white py-14 border-t border-[var(--brand)]/15">
         <div className="max-w-5xl mx-auto px-5">
           <div className="grid md:grid-cols-3 gap-10 mb-10">
             <div>
@@ -669,7 +676,7 @@ export default function App() {
                   <div className="text-base font-bold tracking-[0.2em]" style={{ fontFamily: "'Cormorant Garamond', serif" }}>
                     305 HAIR STYLE
                   </div>
-                  <div className="text-[9px] uppercase tracking-[0.25em] text-[#E8B94A] font-semibold">
+                  <div className="text-[9px] uppercase tracking-[0.25em] text-[var(--brand)] font-semibold">
                     {LOCATION_SHORT}
                   </div>
                 </div>
@@ -680,7 +687,7 @@ export default function App() {
             </div>
 
             <div>
-              <h4 className="font-bold text-sm uppercase tracking-widest text-[#E8B94A] mb-4">Servicios</h4>
+              <h4 className="font-bold text-sm uppercase tracking-widest text-[var(--brand)] mb-4">Servicios</h4>
               <ul className="space-y-2">
                 {["Corte + Peinado", "Coloración", "Balayage", "Alisado Brasileño", "Tratamientos"].map((s) => (
                   <li key={s}>
@@ -696,7 +703,7 @@ export default function App() {
             </div>
 
             <div>
-              <h4 className="font-bold text-sm uppercase tracking-widest text-[#E8B94A] mb-4">Contacto</h4>
+              <h4 className="font-bold text-sm uppercase tracking-widest text-[var(--brand)] mb-4">Contacto</h4>
               <ul className="space-y-3">
                 {[
                   { icon: MapPin, text: ADDRESS },
@@ -704,7 +711,7 @@ export default function App() {
                   { icon: Clock, text: HOURS },
                 ].map(({ icon: Icon, text }) => (
                   <li key={text} className="flex items-center gap-2 text-sm text-white/55">
-                    <Icon size={13} className="text-[#E8B94A] shrink-0" />
+                    <Icon size={13} className="text-[var(--brand)] shrink-0" />
                     {text}
                   </li>
                 ))}
@@ -716,7 +723,7 @@ export default function App() {
                     href={INSTAGRAM_URL}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-[#E8B94A] transition-colors"
+                    className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-[var(--brand)] transition-colors"
                   >
                     <Icon size={15} />
                   </a>

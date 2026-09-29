@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
-import { HAIR_COLORS, loadHairColor, saveHairColor, type HairColor } from "./hairColors";
+import { HAIR_COLORS, applyAccent, loadHairColor, saveHairColor, type HairColor } from "./hairColors";
 
 // Colores tal cual (sin gestión de color) para que el dorado salga igual que en el CSS.
 THREE.ColorManagement.enabled = false;
@@ -25,9 +25,9 @@ const VERTEX = /* glsl */ `
     float x = mix(uX.x, uX.y, u);
     // el mechón cruza en diagonal con curva en S
     float y = mix(-1.9, 1.5, u) + sin(u * 3.1416) * 0.35 + uYOff;
-    y += (r - 0.5) * 1.3 * (0.6 + 0.4 * sin(u * 3.1416)) + (seed - 0.5) * 0.12;
+    y += (r - 0.5) * 1.6 * (0.6 + 0.4 * sin(u * 3.1416)) + (seed - 0.5) * 0.14;
     y += (sin(u * 5.0 - w * 0.9 + r * 2.0) * 0.26 + sin(u * 11.0 - w * 1.6 + seed * 6.0) * 0.04) * amp;
-    float z = (r - 0.5) * 1.2 + cos(u * 4.0 - w * 0.7 + r * 3.0) * 0.25 * amp;
+    float z = (r - 0.5) * 1.4 + cos(u * 4.0 - w * 0.7 + r * 3.0) * 0.25 * amp;
     // el cursor (o la inclinación del teléfono) atrae el mechón
     vec2 d = uMouse - vec2(x, y);
     float f = exp(-dot(d, d) * 2.2) * uStrength;
@@ -123,7 +123,7 @@ export default function SilkBackground({ className }: Props) {
 
     const isSmall = window.matchMedia("(max-width: 767px)").matches;
     // Mucho pelo: más cintas en escritorio que en el teléfono para cuidar la batería.
-    const geometry = buildGeometry(isSmall ? 110 : 160, isSmall ? 150 : 200);
+    const geometry = buildGeometry(isSmall ? 150 : 230, isSmall ? 150 : 200);
     const uniforms = {
       uTime: { value: 0 }, uMouse: { value: new THREE.Vector2(10, 10) }, uStrength: { value: 0 },
       uEnergy: { value: 0 }, uX: { value: new THREE.Vector2(-1, 4) }, uYOff: { value: 0 },
@@ -265,6 +265,7 @@ export default function SilkBackground({ className }: Props) {
   const pickHair = (c: HairColor) => {
     setHair(c);
     saveHairColor(c.id);
+    applyAccent(c); // la web entera toma el color del pelo
   };
 
   return (
@@ -275,7 +276,7 @@ export default function SilkBackground({ className }: Props) {
           <button
             type="button"
             onClick={() => enableMotionRef.current()}
-            className="px-3 py-1.5 rounded-full bg-black/60 border border-[#E8B94A]/30 text-xs font-semibold text-[#E8B94A] backdrop-blur-sm shadow-sm"
+            className="px-3 py-1.5 rounded-full bg-black/60 border border-[var(--brand)]/30 text-xs font-semibold text-[var(--brand)] backdrop-blur-sm shadow-sm"
           >
             ✨ Mover con el teléfono
           </button>
@@ -286,7 +287,7 @@ export default function SilkBackground({ className }: Props) {
           className="flex flex-col items-end gap-1.5 rounded-2xl bg-black/50 border border-white/10 backdrop-blur-sm px-3 py-2"
         >
           <span className="text-[10px] uppercase tracking-[0.2em] font-semibold text-foreground/60">
-            Tu color: <span className="text-[#E8B94A]">{hair.name}</span>
+            Tu color: <span className="text-[var(--brand)]">{hair.name}</span>
           </span>
           <div className="flex gap-1.5">
             {HAIR_COLORS.map((c) => (
@@ -299,7 +300,7 @@ export default function SilkBackground({ className }: Props) {
                 title={c.name}
                 onClick={() => pickHair(c)}
                 className={`w-6 h-6 rounded-full transition-transform hover:scale-110 ${
-                  c.id === hair.id ? "ring-2 ring-[#E8B94A] ring-offset-2 ring-offset-black scale-110" : "ring-1 ring-white/25"
+                  c.id === hair.id ? "ring-2 ring-[var(--brand)] ring-offset-2 ring-offset-black scale-110" : "ring-1 ring-white/25"
                 }`}
                 style={{ background: `linear-gradient(135deg, ${c.deep} 0%, ${c.main} 55%, ${c.shine} 100%)` }}
               />
