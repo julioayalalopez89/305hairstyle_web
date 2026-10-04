@@ -77,3 +77,12 @@ export function toBusinessIso(date: string, hhmm: string): string {
   const offset = tzName === "GMT" ? "+00:00" : tzName.replace("GMT", "");
   return `${date}T${hhmm}:00${offset}`;
 }
+
+/** Instante ISO (con cualquier offset) → { date: "yyyy-MM-dd", time: "HH:mm" } en la hora del salón. */
+export function toBusinessLocal(iso: string): { date: string; time: string } {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: BUSINESS_TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23",
+  }).formatToParts(new Date(iso));
+  const get = (t: string) => parts.find((p) => p.type === t)?.value ?? "";
+  return { date: `${get("year")}-${get("month")}-${get("day")}`, time: `${get("hour")}:${get("minute")}` };
+}

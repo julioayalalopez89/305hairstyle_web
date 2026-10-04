@@ -44,7 +44,10 @@ export type Appointment = {
   updatedAt: string | null;
 };
 
-export type ApiErrorKind = "validation" | "conflict" | "rate_limit" | "network" | "server" | "config";
+export type ApiErrorKind =
+  | "validation" | "conflict" | "rate_limit" | "network" | "server" | "config"
+  | "unauthorized" // 401: clave de admin incorrecta
+  | "not_configured"; // 503 en endpoints de admin: la clave no está puesta en Azure
 
 /** Error con mensaje en español listo para mostrar. */
 export class ApiError extends Error {
@@ -72,7 +75,7 @@ const FIELD_MESSAGES: Record<string, string> = {
 
 const camel = (k: string) => k.charAt(0).toLowerCase() + k.slice(1);
 
-async function toApiError(res: Response): Promise<ApiError> {
+async function toApiError(res: Response, admin = false): Promise<ApiError> {
   let body: unknown = null;
   try {
     body = await res.json();
@@ -97,6 +100,13 @@ async function toApiError(res: Response): Promise<ApiError> {
     }
     case 409:
       return new ApiError("conflict", "Ese horario se acaba de ocupar. Elige otro, por favor.", 409);
+    case 401:
+      return new ApiError("unauthorized", "La clave no es correcta.", 401);
+    case 503:
+      if (admin) {
+        return new ApiError("not_configured", "La clave de administración todavía no está configurada en el servidor (Azure).", 503);
+      }
+      return new ApiError("server", "El sistema de reservas no está disponible ahora. Inténtalo en unos minutos.", 503);
     case 429:
       return new ApiError("rate_limit", "Demasiados intentos seguidos. Espera un minuto e inténtalo de nuevo.", 429);
     default:
@@ -108,7 +118,7 @@ async function toApiError(res: Response): Promise<ApiError> {
   }
 }
 
-async function request<T>(path: string, init: RequestInit = {}, signal?: AbortSignal): Promise<T> {
+async function request<T>(path: string, init: RequestInit = {}, signal?: AbortSignal, adminKey?: string): Promise<T> {
   if (!API_URL) {
     throw new ApiError("config", "Las reservas en línea no están configuradas todavía. Escríbenos por WhatsApp.");
   }
@@ -122,7 +132,12 @@ async function request<T>(path: string, init: RequestInit = {}, signal?: AbortSi
   try {
     res = await fetch(`${API_URL}${path}`, {
       ...init,
-      headers: { Accept: "application/json", ...(init.body ? { "Content-Type": "application/json" } : {}), ...init.headers },
+      headers: {
+        Accept: "application/json",
+        ...(init.body ? { "Content-Type": "application/json" } : {}),
+        ...(adminKey ? { "X-Api-Key": adminKey } : {}),
+        ...init.headers,
+      },
       signal: controller.signal,
     });
   } catch (err) {
@@ -136,7 +151,7 @@ async function request<T>(path: string, init: RequestInit = {}, signal?: AbortSi
     signal?.removeEventListener("abort", onAbort);
   }
 
-  if (!res.ok) throw await toApiError(res);
+  if (!res.ok) throw await toApiError(res, !!adminKey);
   return (await res.json()) as T;
 }
 
@@ -149,4 +164,21 @@ export function getAvailability(date: string, durationMinutes: number, signal?: 
 /** Crea la cita. Lanza ApiError (409 si el horario se ocupó entre medias). */
 export function createAppointment(data: CreateAppointmentRequest) {
   return request<Appointment>("/api/appointments", { method: "POST", body: JSON.stringify(data) });
+}
+
+// ───────────── Administración (requieren la cabecera X-Api-Key) ─────────────
+
+/** Todas las citas (GET /api/appointments). Se agrupan por día en la página de admin. */
+export function listAppointments(adminKey: string, signal?: AbortSignal) {
+  return request<Appointment[]>("/api/appointments", {}, signal, adminKey);
+}
+
+/** Cancela una cita (POST /api/appointments/{id}/cancel). */
+export function cancelAppointment(adminKey: string, id: string, reason?: string) {
+  return request<Appointment>(
+    `/api/appointments/${encodeURIComponent(id)}/cancel`,
+    { method: "POST", body: JSON.stringify({ reason: reason || null }) },
+    undefined,
+    adminKey,
+  );
 }
