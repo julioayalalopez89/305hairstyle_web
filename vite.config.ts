@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
+import seoPlugin from './seo.plugin'
 
 
 function figmaAssetResolver() {
@@ -23,6 +24,8 @@ export default defineConfig({
     // Tailwind is not being actively used – do not remove them
     react(),
     tailwindcss(),
+    // JSON-LD, robots.txt y sitemap.xml a partir de src/data/business.ts
+    seoPlugin(),
   ],
   resolve: {
     alias: {
