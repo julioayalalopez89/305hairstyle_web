@@ -1,22 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- SEO (issue #7). Los datos del negocio y el JSON-LD salen de src/data/business.ts
+         (el JSON-LD lo inserta seo.plugin.ts al compilar). Las vistas previas de PR
+         reciben además noindex. -->
+    <title>305 Hair Style · Salón de belleza en Miami | Reserva en línea</title>
+    <meta name="description" content="Salón de belleza en Miami: cortes, color, peinados y tratamientos. Reserva tu cita en línea en Novus Salon Suites, Coral Way." />
+    <link rel="canonical" href="https://305hairstyle.com/" />
+    <meta name="theme-color" content="#0D0B09" />
 
-  <!DOCTYPE html>
-  <html lang="en">
-    <head>
-      
-      <meta charset="UTF-8" />
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <title>Beauty Salon Website and App</title>
-      <meta name="description" content="Connect with top beauty salons in Miami, book appointments, and explore services all in one convenient app designed for beauty enthusiasts." />
-      <meta name="robots" content="noindex, nofollow" />
-      <style>html, body { height: 100%; margin: 0; } #root { height: 100%; }</style>
-      
-    </head>
+    <!-- Iconos (rutas relativas para que funcionen también en /preview/pr-<n>/) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="./favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./favicon-192x192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png" />
 
-    <body>
-      
-      <div id="root"></div>
-      <script type="module" src="/src/main.tsx"></script>
-      
-    </body>
-  </html>
-  
+    <!-- Open Graph (WhatsApp, Facebook, Instagram) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="305 Hair Style" />
+    <meta property="og:locale" content="es_US" />
+    <meta property="og:url" content="https://305hairstyle.com/" />
+    <meta property="og:title" content="305 Hair Style · Salón de belleza en Miami" />
+    <meta property="og:description" content="Cortes, color, peinados y tratamientos en Coral Way, Miami. Reserva tu cita en línea." />
+    <meta property="og:image" content="https://305hairstyle.com/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Logo de 305 Hair Style en dorado sobre fondo negro" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="305 Hair Style · Salón de belleza en Miami" />
+    <meta name="twitter:description" content="Cortes, color, peinados y tratamientos en Coral Way, Miami. Reserva tu cita en línea." />
+    <meta name="twitter:image" content="https://305hairstyle.com/og-image.jpg" />
+
+    <style>html, body { height: 100%; margin: 0; background: #0D0B09; } #root { height: 100%; }</style>
+  </head>
+
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
