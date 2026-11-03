@@ -102,6 +102,7 @@ export default function SilkBackground({ className }: Props) {
   const hairRef = useRef(hair);
   hairRef.current = hair;
   const enableMotionRef = useRef<() => void>(() => {});
+  const redrawRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -113,7 +114,17 @@ export default function SilkBackground({ className }: Props) {
     } catch {
       return; // sin WebGL: queda el degradado de fondo del hero
     }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const isSmall = window.matchMedia("(max-width: 767px)").matches;
+    // En el teléfono basta 1.5x: casi no se nota y ahorra mucha GPU/batería.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isSmall ? 1.5 : 2));
+
+    // Sin GPU (WebGL por software: SwiftShader, llvmpipe…) la animación ocuparía la CPU
+    // entera y la página iría a tirones. En ese caso se dibuja la seda quieta, una vez.
+    const gl = renderer.getContext();
+    const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+    const gpu = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : "";
+    const animate = !/swiftshader|llvmpipe|softpipe|software|basic render/i.test(gpu);
+
     renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
     renderer.setClearColor(0x000000, 0);
 
@@ -121,7 +132,6 @@ export default function SilkBackground({ className }: Props) {
     camera.position.set(0, 0, 5);
     const halfH = Math.tan(THREE.MathUtils.degToRad(20)) * 5;
 
-    const isSmall = window.matchMedia("(max-width: 767px)").matches;
     // Mucho pelo: más cintas en escritorio que en el teléfono para cuidar la batería.
     const geometry = buildGeometry(isSmall ? 150 : 230, isSmall ? 150 : 200);
     const uniforms = {
@@ -178,7 +188,9 @@ export default function SilkBackground({ className }: Props) {
     const DOE = window.DeviceOrientationEvent as unknown as OrientationPermission | undefined;
     const DME = window.DeviceMotionEvent as unknown as OrientationPermission | undefined;
     const touch = window.matchMedia("(pointer: coarse)").matches;
-    if (touch && DOE && typeof DOE.requestPermission === "function") {
+    if (!animate) {
+      // seda quieta: no hace falta el giroscopio
+    } else if (touch && DOE && typeof DOE.requestPermission === "function") {
       // iPhone/iPad: el permiso solo se puede pedir tras un toque del usuario.
       setNeedsMotionTap(true);
       enableMotionRef.current = () => {
@@ -202,6 +214,7 @@ export default function SilkBackground({ className }: Props) {
       const halfW = halfH * camera.aspect;
       if (camera.aspect > 1) { uniforms.uX.value.set(-halfW * 0.15, halfW * 1.15); uniforms.uYOff.value = 0; uniforms.uFade.value = 1; }
       else { uniforms.uX.value.set(-halfW * 1.2, halfW * 1.2); uniforms.uYOff.value = 0.55; uniforms.uFade.value = 0.85; }
+      if (!animate) redrawRef.current();
     };
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
@@ -232,7 +245,7 @@ export default function SilkBackground({ className }: Props) {
 
       // Cambio de color suave hacia el que eligió la visitante.
       const h = hairRef.current;
-      const k = 1 - Math.exp(-dt * 6); // ~0.5 s, igual a cualquier velocidad de pantalla
+      const k = animate ? 1 - Math.exp(-dt * 6) : 1; // ~0.5 s, igual a cualquier velocidad de pantalla
       uniforms.cDeep.value.lerp(target.set(h.deep), k);
       uniforms.cMain.value.lerp(target.set(h.main), k);
       uniforms.cGold.value.lerp(target.set(h.shine), k);
@@ -242,15 +255,17 @@ export default function SilkBackground({ className }: Props) {
       uniforms.uStrength.value = pointer.s;
       uniforms.uEnergy.value = energy;
       renderer.render(scene, camera);
-      if (visible && !document.hidden) raf = requestAnimationFrame(loop);
+      if (animate && visible && !document.hidden) raf = requestAnimationFrame(loop);
     };
     const start = () => { if (!raf && visible && !document.hidden) { last = performance.now(); raf = requestAnimationFrame(loop); } };
+    redrawRef.current = start; // sin animación: redibuja al cambiar tamaño o color
     const io = new IntersectionObserver(([entry]) => { visible = entry.isIntersecting; start(); });
     io.observe(canvas);
     document.addEventListener("visibilitychange", start);
     start();
 
     return () => {
+      redrawRef.current = () => {};
       cancelAnimationFrame(raf);
       io.disconnect(); ro.disconnect();
       document.removeEventListener("visibilitychange", start);
@@ -266,6 +281,7 @@ export default function SilkBackground({ className }: Props) {
     setHair(c);
     saveHairColor(c.id);
     applyAccent(c); // la web entera toma el color del pelo
+    requestAnimationFrame(() => redrawRef.current()); // seda quieta: pintar el color nuevo
   };
 
   return (

@@ -27,6 +27,12 @@ export default function Gallery() {
             >
               <img
                 src={photo.url}
+                srcSet={photo.srcSet}
+                sizes="(min-width: 768px) 370px, 50vw"
+                width={photo.width}
+                height={photo.height}
+                loading="lazy"
+                decoding="async"
                 alt={photo.alt}
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
               />

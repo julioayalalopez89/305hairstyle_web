@@ -10,6 +10,12 @@ export default function About() {
           <div className="rounded-3xl overflow-hidden bg-secondary aspect-[4/5]">
             <img
               src={ABOUT_PHOTO.url}
+              srcSet={ABOUT_PHOTO.srcSet}
+              sizes="(min-width: 768px) 450px, 90vw"
+              width={ABOUT_PHOTO.width}
+              height={ABOUT_PHOTO.height}
+              loading="lazy"
+              decoding="async"
               alt={ABOUT_PHOTO.alt}
               className="w-full h-full object-cover"
             />
