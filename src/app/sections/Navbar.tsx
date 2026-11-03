@@ -27,7 +27,6 @@ export default function Navbar({ menuOpen, setMenuOpen, onNavigate }: Props) {
       <div className="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between">
         <a
           href="#"
-          aria-label="305 Hair Style, ir al inicio"
           className="flex items-center gap-2.5 group"
           onClick={(e) => { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); }}
         >
