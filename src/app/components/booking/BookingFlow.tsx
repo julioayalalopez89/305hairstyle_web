@@ -3,7 +3,8 @@ import { useForm } from "react-hook-form";
 import { CalendarCheck, ChevronLeft, Clock, Loader2, RefreshCw } from "lucide-react";
 import { ApiError, createAppointment, getAvailability, type Appointment } from "@/lib/api";
 import {
-  formatDayLong, formatDayShort, formatDuration, formatTime, isOpenDay, toBusinessIso, upcomingDays,
+  formatDayLong, formatDayShort, formatDuration, formatTime, isOpenDay, openDaysSentence, toBusinessIso, upcomingDays,
+  DEFAULT_SCHEDULE, type Schedule,
 } from "@/lib/businessTime";
 
 // Flujo de reserva: servicio → día → hora → datos → confirmar.
@@ -13,6 +14,8 @@ export type BookableService = { name: string; price: string; durationMinutes: nu
 
 type Props = {
   services: BookableService[];
+  /** Días y horas de apertura (editables en /admin/). */
+  schedule?: Schedule;
   /** Servicio elegido desde otra parte de la página ("Reservar este servicio"). `n` cambia en cada clic. */
   preselect?: { name: string; n: number } | null;
   address: string;
@@ -42,7 +45,7 @@ const STEPS: { id: Exclude<Step, "done">; label: string }[] = [
   { id: "details", label: "Tus datos" },
 ];
 
-export default function BookingFlow({ services, preselect, address, whatsappUrl }: Props) {
+export default function BookingFlow({ services, schedule = DEFAULT_SCHEDULE, preselect, address, whatsappUrl }: Props) {
   const [step, setStep] = useState<Step>("service");
   const [service, setService] = useState<BookableService | null>(null);
   const [date, setDate] = useState<string | null>(null);
@@ -67,6 +70,19 @@ export default function BookingFlow({ services, preselect, address, whatsappUrl 
     setService(s); setTime(null); setBooked(null); setNotice(null);
     setStep(date ? "time" : "date");
   }, [preselect]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Llegan los servicios del panel: actualizar el elegido (precio/duración) o empezar de nuevo si ya no existe.
+  useEffect(() => {
+    if (!service || step === "done") return;
+    const fresh = services.find((x) => x.name === service.name);
+    if (!fresh) { setService(null); setDate(null); setTime(null); setStep("service"); return; }
+    if (fresh.durationMinutes !== service.durationMinutes || fresh.price !== service.price) setService(fresh);
+  }, [services]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Un día que deja de estar abierto (horario recién cargado) ya no vale.
+  useEffect(() => {
+    if (date && !isOpenDay(date, schedule) && step !== "done") { setDate(null); setTime(null); if (step === "time" || step === "details") setStep("date"); }
+  }, [schedule]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Horarios libres del día elegido.
   useEffect(() => {
@@ -216,7 +232,7 @@ export default function BookingFlow({ services, preselect, address, whatsappUrl 
           <legend className={labelClass}>Elige el día</legend>
           <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
             {days.map((d) => {
-              const open = isOpenDay(d);
+              const open = isOpenDay(d, schedule);
               const { weekday, day, month } = formatDayShort(d);
               const selected = d === date;
               return (
@@ -241,7 +257,7 @@ export default function BookingFlow({ services, preselect, address, whatsappUrl 
               );
             })}
           </div>
-          <p className="mt-3 text-xs text-foreground/45">Abrimos sábado, domingo y lunes. Los demás días están cerrados.</p>
+          <p className="mt-3 text-xs text-foreground/45">{openDaysSentence(schedule)}</p>
         </fieldset>
       )}
 

@@ -10,6 +10,7 @@ export const SITE_DESCRIPTION =
 export const LOCATION_SHORT = "Novus Salon Suites, Miami, FL";
 export const ADDRESS = "8631 Coral Wy, Miami, FL 33155";
 export const MAPS_URL = "https://maps.app.goo.gl/Twibn3iCQszrQgE4A";
+/** Solo para el SEO (build). En la página el horario sale de /admin/ → Horario. */
 export const HOURS = "Sáb–Lun: 9am – 7pm";
 export const PHONE_DISPLAY = "(786) 566-9938";
 /** Teléfono en formato internacional (E.164) para el JSON-LD. */
