@@ -51,7 +51,7 @@ export default function About() {
               { icon: Clock, text: hours },
               { icon: MapPin, text: ADDRESS },
               { icon: Phone, text: PHONE_DISPLAY },
-              { icon: Star, text: "5★ en Google Reviews" },
+              { icon: Star, text: "5 estrellas en reseñas" },
             ].map(({ icon: Icon, text }) => (
               <div key={text} className="flex items-center gap-2.5 text-sm text-foreground/70">
                 <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center shrink-0">
