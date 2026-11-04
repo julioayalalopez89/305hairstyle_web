@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 import { MapPin } from "lucide-react";
 import { LOCATION_SHORT, MAPS_URL } from "@/data/business";
 import { heroPills, useCatalog } from "@/lib/catalog";
@@ -6,7 +6,30 @@ import { heroPills, useCatalog } from "@/lib/catalog";
 // three.js se carga aparte para no frenar la primera pintura de la página.
 const SilkBackground = lazy(() => import("../components/hero/SilkBackground"));
 
+// Espera a que la página termine de cargar y el navegador quede libre antes de montar
+// la seda: así el texto del hero (LCP) se pinta primero y three.js no compite con él.
+function useAfterLoadIdle() {
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    let cancel = () => {};
+    const go = () => {
+      if ("requestIdleCallback" in window) {
+        const id = window.requestIdleCallback(() => setReady(true), { timeout: 2500 });
+        cancel = () => window.cancelIdleCallback(id);
+      } else {
+        const t = window.setTimeout(() => setReady(true), 300);
+        cancel = () => window.clearTimeout(t);
+      }
+    };
+    if (document.readyState === "complete") go();
+    else window.addEventListener("load", go, { once: true });
+    return () => { window.removeEventListener("load", go); cancel(); };
+  }, []);
+  return ready;
+}
+
 export default function Hero({ onNavigate }: { onNavigate: (href: string) => void }) {
+  const showSilk = useAfterLoadIdle();
   const pills = heroPills(useCatalog());
   return (
     <section
@@ -14,9 +37,11 @@ export default function Hero({ onNavigate }: { onNavigate: (href: string) => voi
       style={{ background: "radial-gradient(120% 90% at 80% 20%, #231910 0%, #0D0B09 60%)" }}
     >
       {/* Seda 3D: sigue el cursor o la inclinación del teléfono */}
-      <Suspense fallback={null}>
-        <SilkBackground className="absolute inset-0 w-full h-full pointer-events-none" />
-      </Suspense>
+      {showSilk && (
+        <Suspense fallback={null}>
+          <SilkBackground className="absolute inset-0 w-full h-full pointer-events-none" />
+        </Suspense>
+      )}
 
       <div className="relative z-10 max-w-6xl mx-auto px-5 pt-48 md:pt-24 pb-24 md:pb-16 w-full grid md:grid-cols-2 gap-12 items-center max-md:self-end">
         {/* Left text */}

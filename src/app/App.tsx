@@ -28,14 +28,22 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-background text-foreground" style={{ fontFamily: "'Jost', sans-serif" }}>
+      <a
+        href="#contenido"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[60] focus:px-4 focus:py-2 focus:rounded-full focus:bg-[var(--brand)] focus:text-[var(--on-brand)] focus:font-semibold"
+      >
+        Saltar al contenido
+      </a>
       <Navbar menuOpen={menuOpen} setMenuOpen={setMenuOpen} onNavigate={scrollTo} />
-      <Hero onNavigate={scrollTo} />
-      <QuickStats />
-      <Services onBook={bookService} onNavigate={scrollTo} />
-      <Gallery />
-      <About />
-      <Testimonials />
-      <Contact preselect={bookingPreselect} />
+      <main id="contenido">
+        <Hero onNavigate={scrollTo} />
+        <QuickStats />
+        <Services onBook={bookService} onNavigate={scrollTo} />
+        <Gallery />
+        <About />
+        <Testimonials />
+        <Contact preselect={bookingPreselect} />
+      </main>
       <Footer onNavigate={scrollTo} />
     </div>
   );

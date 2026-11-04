@@ -113,7 +113,21 @@ export default function SilkBackground({ className }: Props) {
     } catch {
       return; // sin WebGL: queda el degradado de fondo del hero
     }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const isSmall = window.matchMedia("(max-width: 767px)").matches;
+    // En el teléfono basta 1.5x: casi no se nota y ahorra mucha GPU/batería.
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, isSmall ? 1.5 : 2));
+
+    // Sin GPU real (WebGL por software: SwiftShader, llvmpipe…) cada cuadro de la seda
+    // tarda segundos en la CPU y la página entera se congela. Ahí se hace lo mismo que
+    // sin WebGL: queda el degradado del hero (el selector de color sigue funcionando).
+    const gl = renderer.getContext();
+    const dbg = gl.getExtension("WEBGL_debug_renderer_info");
+    const gpu = dbg ? String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)) : "";
+    if (/swiftshader|llvmpipe|softpipe|software|basic render/i.test(gpu)) {
+      renderer.dispose();
+      return;
+    }
+
     renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
     renderer.setClearColor(0x000000, 0);
 
@@ -121,7 +135,6 @@ export default function SilkBackground({ className }: Props) {
     camera.position.set(0, 0, 5);
     const halfH = Math.tan(THREE.MathUtils.degToRad(20)) * 5;
 
-    const isSmall = window.matchMedia("(max-width: 767px)").matches;
     // Mucho pelo: más cintas en escritorio que en el teléfono para cuidar la batería.
     const geometry = buildGeometry(isSmall ? 150 : 230, isSmall ? 150 : 200);
     const uniforms = {

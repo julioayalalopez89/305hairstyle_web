@@ -60,8 +60,12 @@ export default function Navbar({ menuOpen, setMenuOpen, onNavigate }: Props) {
         </nav>
 
         <button
+          type="button"
           className="md:hidden p-2 rounded-lg hover:bg-secondary transition-colors"
           onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={menuOpen}
+          aria-controls="menu-movil"
         >
           {menuOpen ? <X size={22} /> : <Menu size={22} />}
         </button>
@@ -69,8 +73,10 @@ export default function Navbar({ menuOpen, setMenuOpen, onNavigate }: Props) {
 
       {/* Mobile menu */}
       <div
-        className={`md:hidden overflow-hidden transition-all duration-300 ${menuOpen ? "max-h-80" : "max-h-0"}`}
+        id="menu-movil"
+        className={`md:hidden overflow-hidden transition-all duration-300 ${menuOpen ? "max-h-80" : "max-h-0 invisible"}`}
       >
+        {/* invisible (visibility: hidden) al cerrar: así Tab no entra en el menú oculto */}
         <div className="bg-background/98 backdrop-blur-md border-t border-border px-5 py-4 flex flex-col gap-3">
           {NAV_LINKS.map((l) => (
             <button

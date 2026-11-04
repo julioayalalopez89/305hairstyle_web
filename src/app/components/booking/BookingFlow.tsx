@@ -179,7 +179,7 @@ export default function BookingFlow({ services, schedule = DEFAULT_SCHEDULE, pre
         {STEPS.map((s, i) => (
           <li key={s.id} className="flex-1">
             <div className={`h-1 rounded-full ${i <= stepIndex ? "bg-[var(--brand)]" : "bg-border"}`} />
-            <span className={`mt-1.5 block text-[10px] uppercase tracking-widest font-bold ${i === stepIndex ? "text-[var(--brand)]" : "text-foreground/35"}`}>
+            <span className={`mt-1.5 block text-[10px] uppercase tracking-widest font-bold ${i === stepIndex ? "text-[var(--brand)]" : "text-foreground/60"}`}>
               {s.label}
             </span>
           </li>
