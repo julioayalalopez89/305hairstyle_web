@@ -9,8 +9,9 @@ export type Service = {
 
 export type ServiceCategory = { category: string; items: Service[] };
 
-// durationMinutes: lo que ocupa la cita en la agenda (la API usa esto para los horarios libres).
-// Son estimaciones iniciales: ajustarlas aquí cuando el salón confirme los tiempos reales.
+// RESPALDO: los servicios reales se editan en /admin/ → Servicios y la web los lee de la API
+// (src/lib/catalog.ts). Esta lista solo se usa mientras carga, si la API no responde o si el
+// panel todavía no tiene servicios guardados. En /admin/ hay un botón para importarla.
 export const SERVICES: ServiceCategory[] = [
   {
     category: "Cabello",
@@ -31,7 +32,7 @@ export const SERVICES: ServiceCategory[] = [
   },
 ];
 
-// Atajos que se muestran en el hero.
+// Atajos del hero y lista del footer: respaldo (con servicios del panel se calculan solos).
 export const HERO_SERVICE_PILLS = ["Corte + Peinado · $55", "Coloración · $180+", "Balayage · $120+"];
 
 // Lista corta de servicios del footer.

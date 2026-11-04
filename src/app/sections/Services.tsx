@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
-import { SERVICES } from "@/data/services";
+import { useCatalog } from "@/lib/catalog";
 
 type Props = {
   /** "Reservar este servicio": preselecciona el servicio en la reserva. */
@@ -9,7 +9,10 @@ type Props = {
 };
 
 export default function Services({ onBook, onNavigate }: Props) {
-  const [activeService, setActiveService] = useState(0);
+  const { services } = useCatalog();
+  const [selected, setActiveService] = useState(0);
+  // Si cambia el número de categorías (llegan las del panel), no salirse de la lista.
+  const activeService = Math.min(selected, Math.max(0, services.length - 1));
 
   return (
     <section id="servicios" className="py-24 bg-background">
@@ -25,8 +28,8 @@ export default function Services({ onBook, onNavigate }: Props) {
         </div>
 
         {/* Category tabs */}
-        <div className="flex gap-2 mb-8 justify-center">
-          {SERVICES.map((cat, i) => (
+        <div className="flex flex-wrap gap-2 mb-8 justify-center">
+          {services.map((cat, i) => (
             <button
               key={cat.category}
               onClick={() => setActiveService(i)}
@@ -42,7 +45,7 @@ export default function Services({ onBook, onNavigate }: Props) {
         </div>
 
         <div className="grid sm:grid-cols-2 gap-4">
-          {SERVICES[activeService].items.map((item) => (
+          {(services[activeService]?.items ?? []).map((item) => (
             <button
               type="button"
               key={item.name}

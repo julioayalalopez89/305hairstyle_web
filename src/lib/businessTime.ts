@@ -3,8 +3,21 @@
 
 export const BUSINESS_TZ = "America/New_York";
 
-/** Días abiertos (0 = domingo … 6 = sábado). Debe coincidir con Business:OpeningHours de la API. */
+/** Horario de un día de la semana (0 = domingo … 6 = sábado), horas locales "HH:mm". */
+export type DaySchedule = { day: number; isOpen: boolean; open: string; close: string };
+
+/** Horario de reservas: los 7 días y las fechas cerradas (yyyy-MM-dd). Se edita en /admin/. */
+export type Schedule = { days: DaySchedule[]; closedDates: string[] };
+
+/**
+ * Respaldo mientras carga la API (o si no responde). El horario real es el que se
+ * guarda en /admin/ → Horario; sin nada guardado, la API usa Business:OpeningHours.
+ */
 export const OPEN_WEEKDAYS = [6, 0, 1]; // sábado, domingo y lunes
+export const DEFAULT_SCHEDULE: Schedule = {
+  days: Array.from({ length: 7 }, (_, day) => ({ day, isOpen: OPEN_WEEKDAYS.includes(day), open: "09:00", close: "19:00" })),
+  closedDates: [],
+};
 
 /** Cuántos días hacia adelante se puede reservar. */
 export const BOOKING_WINDOW_DAYS = 28;
@@ -29,8 +42,68 @@ export function weekdayOf(date: string): number {
   return noon(date).getUTCDay();
 }
 
-export function isOpenDay(date: string): boolean {
-  return OPEN_WEEKDAYS.includes(weekdayOf(date));
+export function isOpenDay(date: string, schedule: Schedule = DEFAULT_SCHEDULE): boolean {
+  if (schedule.closedDates.includes(date)) return false;
+  return schedule.days.some((d) => d.day === weekdayOf(date) && d.isOpen);
+}
+
+const DAY_SHORT = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+const DAY_LONG = ["domingo", "lunes", "martes", "miércoles", "jueves", "viernes", "sábado"];
+
+/** "09:00" → "9am", "19:30" → "7:30pm" */
+function compactTime(hhmm: string): string {
+  const [h, m] = hhmm.split(":").map(Number);
+  return `${h % 12 || 12}${m ? `:${String(m).padStart(2, "0")}` : ""}${h >= 12 ? "pm" : "am"}`;
+}
+
+/** Tramos de días seguidos (la semana es circular: sáb, dom, lun es un tramo). */
+function dayRuns(days: number[]): number[][] {
+  const set = new Set(days);
+  if (set.size === 7) return [[1, 2, 3, 4, 5, 6, 0]];
+  const runs: number[][] = [];
+  for (const start of days) {
+    if (set.has((start + 6) % 7)) continue; // no empieza aquí
+    const run = [start];
+    for (let d = (start + 1) % 7; set.has(d); d = (d + 1) % 7) run.push(d);
+    runs.push(run);
+  }
+  const order = (d: number) => (d + 6) % 7; // lunes primero
+  return runs.sort((a, b) => order(a[0]) - order(b[0]));
+}
+
+/** "Sáb–Lun: 9am – 7pm" · "Mar–Vie: 10am – 6pm · Sáb: 9am – 3pm" · "Cerrado temporalmente" */
+export function formatHoursSummary(schedule: Schedule): string {
+  const open = schedule.days.filter((d) => d.isOpen);
+  if (open.length === 0) return "Cerrado temporalmente";
+  const byHours = new Map<string, number[]>();
+  for (const d of open) {
+    const k = `${d.open}-${d.close}`;
+    byHours.set(k, [...(byHours.get(k) ?? []), d.day]);
+  }
+  return [...byHours.entries()]
+    .map(([k, days]) => {
+      const [o, c] = k.split("-");
+      const label = dayRuns(days)
+        .map((r) => (r.length === 7 ? "Todos los días" : r.length >= 3 ? `${DAY_SHORT[r[0]]}–${DAY_SHORT[r[r.length - 1]]}` : r.map((d) => DAY_SHORT[d]).join(", ")))
+        .join(", ");
+      return { first: (days.map((d) => (d + 6) % 7).sort()[0]), text: `${label}: ${compactTime(o)} – ${compactTime(c)}` };
+    })
+    .sort((a, b) => a.first - b.first)
+    .map((x) => x.text)
+    .join(" · ");
+}
+
+/** "Abrimos sábado, domingo y lunes." (en el orden de la semana, empezando por el primer tramo) */
+export function openDaysSentence(schedule: Schedule): string {
+  const open = schedule.days.filter((d) => d.isOpen).map((d) => d.day);
+  if (open.length === 0) return "Por ahora no hay días disponibles para reservar.";
+  if (open.length === 7) return "Abrimos todos los días.";
+  // Un solo tramo se lee en su orden (sábado, domingo y lunes); varios, de lunes a domingo.
+  const runs = dayRuns(open);
+  const ordered = runs.length === 1 ? runs[0] : open.sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7));
+  const names = ordered.map((d) => DAY_LONG[d]);
+  const list = names.length === 1 ? names[0] : `${names.slice(0, -1).join(", ")} y ${names[names.length - 1]}`;
+  return `Abrimos ${list}. Los demás días están cerrados.`;
 }
 
 /** Próximos días (desde hoy) para el selector de fecha. */

@@ -1,7 +1,7 @@
 import { ChevronRight, Facebook, Instagram, MessageCircle } from "lucide-react";
 import BookingFlow from "../components/booking/BookingFlow";
 import { ADDRESS, FACEBOOK_URL, INSTAGRAM_URL, PHONE_DISPLAY, WHATSAPP_URL } from "@/data/business";
-import { SERVICES } from "@/data/services";
+import { useCatalog } from "@/lib/catalog";
 
 type Props = {
   /** Servicio elegido con "Reservar este servicio"; `n` cambia en cada clic. */
@@ -9,6 +9,7 @@ type Props = {
 };
 
 export default function Contact({ preselect }: Props) {
+  const { services, schedule } = useCatalog();
   return (
     <section id="contacto" className="py-24 bg-background">
       <div className="max-w-5xl mx-auto px-5 grid md:grid-cols-2 gap-16 items-start">
@@ -77,7 +78,8 @@ export default function Contact({ preselect }: Props) {
         {/* Reserva en línea (API de citas) */}
         <div id="reservar" className="bg-card rounded-3xl p-6 sm:p-8 border border-border shadow-sm">
           <BookingFlow
-            services={SERVICES.flatMap((cat) => cat.items.map((i) => ({ ...i, category: cat.category })))}
+            services={services.flatMap((cat) => cat.items.map((i) => ({ ...i, category: cat.category })))}
+            schedule={schedule}
             preselect={preselect}
             address={ADDRESS}
             whatsappUrl={WHATSAPP_URL}

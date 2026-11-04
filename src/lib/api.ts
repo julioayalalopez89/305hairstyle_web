@@ -92,6 +92,11 @@ async function toApiError(res: Response, admin = false): Promise<ApiError> {
         const field = camel(key.replace(/^\$\./, ""));
         fieldErrors[field] = FIELD_MESSAGES[field] ?? "Revisa este dato.";
       }
+      if (admin) {
+        // Panel: los datos se validan antes de enviar; si aun así falla, mostrar el detalle del servidor.
+        const detail = (body as { message?: string } | null)?.message;
+        return new ApiError("validation", `No se pudo guardar: revisa los datos.${detail ? ` (${detail})` : ""}`, 400, fieldErrors);
+      }
       const message = Object.keys(fieldErrors).length
         ? "Revisa los datos marcados e inténtalo de nuevo."
         : // { message } de las reglas de horario: pasado, día cerrado o fuera de horario
@@ -181,4 +186,59 @@ export function cancelAppointment(adminKey: string, id: string, reason?: string)
     undefined,
     adminKey,
   );
+}
+
+// ───────────── Catálogo: servicios y horario (GET público, cambios con X-Api-Key) ─────────────
+
+/** Servicio tal como lo guarda la API. `id` vacío = nuevo al guardar. */
+export type CatalogServiceDto = {
+  id?: string | null;
+  category: string;
+  name: string;
+  durationMinutes: number; // 5–480
+  price: string; // "$55", "$180+"
+  description?: string | null;
+  popular: boolean;
+  active: boolean;
+};
+
+/** Un día de la semana: 0 = domingo … 6 = sábado. Horas locales del salón "HH:mm". */
+export type BusinessDayDto = { day: number; isOpen: boolean; open: string; close: string };
+
+export type ClosedDateDto = { date: string; reason?: string | null }; // date: yyyy-MM-dd
+
+export type ScheduleDto = {
+  timeZone: string;
+  slotIntervalMinutes: number;
+  days: BusinessDayDto[]; // siempre 7
+  closedDates: ClosedDateDto[];
+  /** false = el horario todavía sale de la configuración del servidor. */
+  customized: boolean;
+};
+
+/** GET /api/catalog: servicios activos y horario. `services` vacío = aún no se guardaron desde el panel. */
+export type CatalogResponse = { services: CatalogServiceDto[]; schedule: ScheduleDto };
+
+export function getCatalog(signal?: AbortSignal) {
+  return request<CatalogResponse>("/api/catalog", {}, signal);
+}
+
+/** Todos los servicios, también los ocultos. */
+export function adminGetServices(adminKey: string, signal?: AbortSignal) {
+  return request<CatalogServiceDto[]>("/api/catalog/services", {}, signal, adminKey);
+}
+
+/** Sustituye la lista completa de servicios (el orden de la lista es el de la web). */
+export function adminSaveServices(adminKey: string, services: CatalogServiceDto[]) {
+  return request<CatalogServiceDto[]>("/api/catalog/services", { method: "PUT", body: JSON.stringify(services) }, undefined, adminKey);
+}
+
+/** Horario semanal y todos los días cerrados (también los pasados). */
+export function adminGetSchedule(adminKey: string, signal?: AbortSignal) {
+  return request<ScheduleDto>("/api/catalog/schedule", {}, signal, adminKey);
+}
+
+/** Sustituye el horario semanal y los días cerrados. */
+export function adminSaveSchedule(adminKey: string, data: { days: BusinessDayDto[]; closedDates: ClosedDateDto[] }) {
+  return request<ScheduleDto>("/api/catalog/schedule", { method: "PUT", body: JSON.stringify(data) }, undefined, adminKey);
 }

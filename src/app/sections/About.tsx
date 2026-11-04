@@ -1,8 +1,10 @@
 import { Clock, MapPin, Phone, Star } from "lucide-react";
-import { ADDRESS, HOURS, PHONE_DISPLAY } from "@/data/business";
+import { ADDRESS, PHONE_DISPLAY } from "@/data/business";
+import { hoursText, useCatalog } from "@/lib/catalog";
 import { ABOUT_PHOTO } from "@/data/gallery";
 
 export default function About() {
+  const hours = hoursText(useCatalog());
   return (
     <section id="nosotros" className="py-24 bg-background">
       <div className="max-w-5xl mx-auto px-5 grid md:grid-cols-2 gap-16 items-center">
@@ -40,7 +42,7 @@ export default function About() {
 
           <div className="grid grid-cols-2 gap-4">
             {[
-              { icon: Clock, text: HOURS },
+              { icon: Clock, text: hours },
               { icon: MapPin, text: ADDRESS },
               { icon: Phone, text: PHONE_DISPLAY },
               { icon: Star, text: "5★ en Google Reviews" },

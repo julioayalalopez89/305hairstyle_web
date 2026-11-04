@@ -1,16 +1,29 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { CalendarDays, Loader2, LogOut, Mail, MessageCircle, Phone, RefreshCw, X } from "lucide-react";
+import { CalendarDays, Clock, Loader2, LogOut, Mail, MessageCircle, Phone, RefreshCw, Scissors, X } from "lucide-react";
 import { ApiError, cancelAppointment, listAppointments, type Appointment } from "@/lib/api";
 import { addDays, formatDayLong, formatDuration, formatTime, toBusinessLocal, todayInBusinessTz } from "@/lib/businessTime";
+import ServicesEditor from "./ServicesEditor";
+import ScheduleEditor from "./ScheduleEditor";
+import { serif } from "./ui";
 
-// Agenda privada del salón (/admin/). Pide la clave de administración de la API
-// (Security__AdminApiKey en Azure) y muestra las citas agrupadas por día.
+// Panel privado del salón (/admin/). Pide la clave de administración de la API
+// (Security__AdminApiKey en Azure). Tres secciones:
+// - Agenda: citas agrupadas por día.
+// - Servicios: nombre, precio, duración y descripción de lo que se reserva en la web.
+// - Horario: días y horas en que se puede reservar, y días cerrados (festivos, vacaciones).
 // La clave solo se guarda en este navegador; nunca está en el código.
 
 const KEY_STORAGE = "305hs.adminKey";
 const REFRESH_MS = 60_000;
 
 type View = "upcoming" | "past" | "cancelled";
+type Tab = "agenda" | "services" | "schedule";
+
+const TABS: { id: Tab; label: string; icon: typeof CalendarDays }[] = [
+  { id: "agenda", label: "Agenda", icon: CalendarDays },
+  { id: "services", label: "Servicios", icon: Scissors },
+  { id: "schedule", label: "Horario", icon: Clock },
+];
 
 function readKey(): string {
   try {
@@ -37,8 +50,6 @@ function clearKey() {
   }
 }
 
-const serif = { fontFamily: "'Cormorant Garamond', serif" };
-
 export default function AdminApp() {
   const [key, setKey] = useState(readKey);
   const [items, setItems] = useState<Appointment[] | null>(null);
@@ -46,6 +57,8 @@ export default function AdminApp() {
   const [error, setError] = useState<string | null>(null);
   const [view, setView] = useState<View>("upcoming");
   const [updatedAt, setUpdatedAt] = useState<Date | null>(null);
+  const [tab, setTab] = useState<Tab>("agenda");
+  const [editorDirty, setEditorDirty] = useState(false);
 
   const load = useCallback(async (k: string, signal?: AbortSignal) => {
     setLoading(true);
@@ -80,7 +93,23 @@ export default function AdminApp() {
 
   if (!key) return <Login onLogin={(k, remember) => { storeKey(k, remember); setKey(k); }} error={error} />;
 
-  const logout = () => { clearKey(); setKey(""); setItems(null); setError(null); };
+  const logout = () => {
+    if (editorDirty && !window.confirm("Tienes cambios sin guardar. ¿Salir igualmente?")) return;
+    clearKey(); setKey(""); setItems(null); setError(null); setEditorDirty(false); setTab("agenda");
+  };
+
+  const onUnauthorized = () => {
+    clearKey(); setKey(""); setItems(null); setEditorDirty(false); setTab("agenda");
+    setError("La clave no es correcta o cambió. Escríbela de nuevo.");
+  };
+
+  const switchTab = (t: Tab) => {
+    if (t === tab) return;
+    if (editorDirty && !window.confirm("Tienes cambios sin guardar. ¿Cambiar de sección y descartarlos?")) return;
+    setEditorDirty(false);
+    setTab(t);
+    window.scrollTo({ top: 0 });
+  };
 
   const onCancel = async (a: Appointment) => {
     const when = toBusinessLocal(a.startTime);
@@ -99,22 +128,34 @@ export default function AdminApp() {
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center gap-3">
           <CalendarDays size={20} className="text-[var(--brand)]" />
           <div className="leading-tight">
-            <div className="text-xl font-semibold" style={serif}>Agenda</div>
+            <div className="text-xl font-semibold" style={serif}>Panel del salón</div>
             <div className="text-[10px] uppercase tracking-[0.25em] text-[var(--brand)] font-semibold">305 Hair Style</div>
           </div>
           <div className="ml-auto flex items-center gap-1">
-            <button
+            {tab === "agenda" && <button
               type="button" onClick={() => load(key)} disabled={loading}
               className="p-2 rounded-lg hover:bg-white/5 text-foreground/70" aria-label="Actualizar" title="Actualizar"
             >
               {loading ? <Loader2 size={18} className="animate-spin" /> : <RefreshCw size={18} />}
-            </button>
+            </button>}
             <button type="button" onClick={logout} className="p-2 rounded-lg hover:bg-white/5 text-foreground/70" aria-label="Salir" title="Salir">
               <LogOut size={18} />
             </button>
           </div>
         </div>
-        <div className="max-w-3xl mx-auto px-4 pb-3 flex gap-2">
+        <nav className="max-w-3xl mx-auto px-4 flex gap-1" aria-label="Secciones del panel">
+          {TABS.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id} type="button" onClick={() => switchTab(id)} aria-current={tab === id ? "page" : undefined}
+              className={`inline-flex items-center gap-1.5 px-3 sm:px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+                tab === id ? "border-[var(--brand)] text-foreground" : "border-transparent text-foreground/50 hover:text-foreground"
+              }`}
+            >
+              <Icon size={15} /> {label}
+            </button>
+          ))}
+        </nav>
+        {tab === "agenda" && <div className="max-w-3xl mx-auto px-4 py-3 flex gap-2 border-t border-border">
           {([["upcoming", "Próximas"], ["past", "Pasadas"], ["cancelled", "Canceladas"]] as const).map(([v, label]) => (
             <button
               key={v} type="button" onClick={() => setView(v)}
@@ -125,10 +166,13 @@ export default function AdminApp() {
               {label}
             </button>
           ))}
-        </div>
+        </div>}
       </header>
 
       <main className="max-w-3xl mx-auto px-4 py-6">
+        {tab === "services" && <ServicesEditor adminKey={key} onUnauthorized={onUnauthorized} onDirtyChange={setEditorDirty} />}
+        {tab === "schedule" && <ScheduleEditor adminKey={key} appointments={items} onUnauthorized={onUnauthorized} onDirtyChange={setEditorDirty} />}
+        {tab === "agenda" && <>
         {error && <p role="alert" className="mb-4 rounded-xl border border-destructive/50 bg-destructive/10 px-4 py-3 text-sm">{error}</p>}
         {items === null && loading && (
           <p className="flex items-center gap-2 text-sm text-foreground/60"><Loader2 size={16} className="animate-spin" /> Cargando citas…</p>
@@ -139,6 +183,7 @@ export default function AdminApp() {
             Actualizado {updatedAt.toLocaleTimeString("es-US", { hour: "numeric", minute: "2-digit" })} · se actualiza solo cada minuto
           </p>
         )}
+        </>}
       </main>
     </div>
   );
@@ -247,8 +292,8 @@ function Login({ onLogin, error }: { onLogin: (key: string, remember: boolean) =
         className="w-full max-w-sm rounded-3xl border border-border bg-card p-7"
       >
         <CalendarDays size={28} className="text-[var(--brand)] mb-3" />
-        <h1 className="text-3xl font-semibold mb-1" style={serif}>Agenda del salón</h1>
-        <p className="text-sm text-foreground/55 mb-6">Escribe la clave de administración para ver las citas.</p>
+        <h1 className="text-3xl font-semibold mb-1" style={serif}>Panel del salón</h1>
+        <p className="text-sm text-foreground/55 mb-6">Escribe la clave de administración para ver las citas y editar servicios y horario.</p>
         <label htmlFor="admin-key" className="block text-xs font-bold uppercase tracking-widest text-foreground/50 mb-1.5">Clave</label>
         <input
           id="admin-key" type="password" autoComplete="current-password" value={value} onChange={(e) => setValue(e.target.value)}

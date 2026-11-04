@@ -1,9 +1,10 @@
 import { Clock, Facebook, Instagram, MapPin, Phone } from "lucide-react";
 import SalonLogo from "../components/SalonLogo";
-import { ADDRESS, HOURS, INSTAGRAM_URL, LOCATION_SHORT, PHONE_DISPLAY } from "@/data/business";
-import { FOOTER_SERVICES } from "@/data/services";
+import { ADDRESS, INSTAGRAM_URL, LOCATION_SHORT, PHONE_DISPLAY } from "@/data/business";
+import { footerServices, hoursText, useCatalog } from "@/lib/catalog";
 
 export default function Footer({ onNavigate }: { onNavigate: (href: string) => void }) {
+  const catalog = useCatalog();
   return (
     <footer className="bg-[#080706] text-white py-14 border-t border-[var(--brand)]/15">
       <div className="max-w-5xl mx-auto px-5">
@@ -28,7 +29,7 @@ export default function Footer({ onNavigate }: { onNavigate: (href: string) => v
           <div>
             <h4 className="font-bold text-sm uppercase tracking-widest text-[var(--brand)] mb-4">Servicios</h4>
             <ul className="space-y-2">
-              {FOOTER_SERVICES.map((s) => (
+              {footerServices(catalog).map((s) => (
                 <li key={s}>
                   <button
                     onClick={() => onNavigate("#servicios")}
@@ -47,7 +48,7 @@ export default function Footer({ onNavigate }: { onNavigate: (href: string) => v
               {[
                 { icon: MapPin, text: ADDRESS },
                 { icon: Phone, text: PHONE_DISPLAY },
-                { icon: Clock, text: HOURS },
+                { icon: Clock, text: hoursText(catalog) },
               ].map(({ icon: Icon, text }) => (
                 <li key={text} className="flex items-center gap-2 text-sm text-white/55">
                   <Icon size={13} className="text-[var(--brand)] shrink-0" />

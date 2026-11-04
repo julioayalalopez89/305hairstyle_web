@@ -1,12 +1,13 @@
 import { lazy, Suspense } from "react";
 import { MapPin } from "lucide-react";
 import { LOCATION_SHORT, MAPS_URL } from "@/data/business";
-import { HERO_SERVICE_PILLS } from "@/data/services";
+import { heroPills, useCatalog } from "@/lib/catalog";
 
 // three.js se carga aparte para no frenar la primera pintura de la página.
 const SilkBackground = lazy(() => import("../components/hero/SilkBackground"));
 
 export default function Hero({ onNavigate }: { onNavigate: (href: string) => void }) {
+  const pills = heroPills(useCatalog());
   return (
     <section
       className="relative min-h-screen flex items-center overflow-hidden"
@@ -60,7 +61,7 @@ export default function Hero({ onNavigate }: { onNavigate: (href: string) => voi
 
           {/* Quick service pills */}
           <div className="flex flex-wrap gap-2">
-            {HERO_SERVICE_PILLS.map((s) => (
+            {pills.map((s) => (
               <span key={s} className="px-3 py-1.5 rounded-xl bg-white/5 border border-border text-xs font-semibold text-foreground/70 backdrop-blur-sm">
                 {s}
               </span>
